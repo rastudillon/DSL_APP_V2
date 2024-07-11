@@ -33,7 +33,7 @@ def porc_pend_dashboard_anual(df):
     pend = df.Ejecutada[(df.Año==año_actual)&(df.Ejecutada=="No")].value_counts()
     total = np.sum(ejec)+np.sum(pend)
     if total > 0:
-        porc = round(np.sum(ejec) / total * 100)
+        porc = round(np.sum(pend) / total * 100)
     else:
         porc = 0  
 
@@ -425,6 +425,52 @@ def filtros_dashboard(df):
             return df[(df["Tipo de Servicio"]==servicio)&(df.Año==año)], 1
         mes = st.sidebar.selectbox("Mes", df["Mes"].unique().tolist())
         return df[(df["Tipo de Servicio"]==servicio)&(df.Año==año)&(df.Mes==mes)], 0
+    
+def calcular_promedio_dias(df):
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha de Término']):
+        df['Fecha de Término'] = pd.to_datetime(df['Fecha de Término'], errors='coerce')
+
+    df['Diferencia en Días'] = (df['Fecha de Término'] - df['Fecha']).dt.days
+
+    df_validos = df[df['Diferencia en Días'] >= 0]
+
+    promedio_dias = df_validos['Diferencia en Días'].mean()
+
+    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    titulo = "Promedio de días OT ejecutadas"
+
+    metric_html = f"<div style= '{div_style}'>"\
+        f"<span style= '{title_style}'>{titulo}</span></br>"\
+        f"<span style= '{color}'>{round(promedio_dias)}</span></div>"
+
+    return st.write(metric_html,unsafe_allow_html=True)
+
+def calcular_dias_no_ejecutadas(df):
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+
+    fecha_actual = pd.to_datetime(datetime.datetime.now().date())
+
+    df['Diferencia en Días No Ejecutadas'] = (fecha_actual - df['Fecha']).dt.days
+
+    df_no_ejecutadas = df[df['Ejecutada'] == 'No']
+
+    promedio_dias_no_ejecutadas = df_no_ejecutadas['Diferencia en Días No Ejecutadas'].mean()
+
+    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    titulo = "Promedio de días OT No ejecutadas"
+
+    metric_html = f"<div style= '{div_style}'>"\
+        f"<span style= '{title_style}'>{titulo}</span></br>"\
+        f"<span style= '{color}'>{round(promedio_dias_no_ejecutadas)}</span></div>"
+    
+    return st.write(metric_html,unsafe_allow_html=True)
 
 def dashboard_anual(df):
     
@@ -437,7 +483,7 @@ def dashboard_anual(df):
     title = f"Indicadores Dirección de Servicios y Logística - Año {año_actual}"
     st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
   
-    c1,c2,c3,c4 = st.columns(4)
+    c1,c2,c3,c4,c5,c6 = st.columns(6)
     with c1:
         porc_pend_dashboard_anual(df)
 
@@ -449,6 +495,10 @@ def dashboard_anual(df):
 
     with c4:
         cant_ejec_dashboard_anual(df)
+    with c5:
+        calcular_promedio_dias(df)
+    with c6:
+        calcular_dias_no_ejecutadas(df)
 
     st.write('<br>', unsafe_allow_html=True)
 

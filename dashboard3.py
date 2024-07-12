@@ -479,7 +479,7 @@ def dashboard_anual(df):
     último_año = df['Fecha'].dt.year.max()
     último_mes = df.Mes.unique().tolist()[0]
     
-    size_title = 'font-size: 22px; text-align: center; color: #D8E2DC; font-weight: lighter'
+    size_title = 'font-size: 34px; text-align: center; color: #000000; font-weight: lighter'
     title = f"Indicadores Dirección de Servicios y Logística - Año {año_actual}"
     st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
   

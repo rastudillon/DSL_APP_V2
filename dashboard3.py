@@ -44,8 +44,8 @@ def porc_pend_dashboard_anual(df):
     else:
         color = 'color: #5DD39E; font-size: 50px; text-align: center'
 
-    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Porcentaje total de pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
@@ -73,8 +73,8 @@ def porc_ejec_dashboard_anual(df):
     else:
         color = 'color: red; font-size: 50px;'
 
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Porcentaje total de ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\

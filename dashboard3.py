@@ -3,6 +3,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
+import locale
 # import seaborn as sns
 import plotly.express as px
 # import missingno as msn
@@ -46,7 +47,7 @@ def porc_pend_dashboard_anual(df):
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
-    titulo = "Porcentaje total de pendientes"
+    titulo = "Porcentaje de OT pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -75,7 +76,7 @@ def porc_ejec_dashboard_anual(df):
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
-    titulo = "Porcentaje total de ejecutadas"
+    titulo = "Porcentaje de OT ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -89,9 +90,9 @@ def cant_pend_dashboard_anual(df):
     pend = df.Ejecutada[(df.Ejecutada=="No")&(df.Año==año_actual)].count()
 
     color = 'color: #F5A65B; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Cantidad total de pendientes"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Cantidad de pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -103,9 +104,9 @@ def cant_ejec_dashboard_anual(df):
     ejec = df.Ejecutada[(df.Ejecutada=="Si")&(df.Año==año_actual)].count()
 
     color = 'color: #32E875; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Cantidad total de ejecutadas"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Cantidad de ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -126,9 +127,9 @@ def porc_ejec_dashboard_servicio(df):
     else:
         color = 'color: red; font-size: 50px;'
 
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Porcentaje total de ejecutadas"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Porcentaje de OT ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -152,9 +153,9 @@ def porc_no_ejec_dashboard_servicio(df):
     else:
         color = 'color: #5DD39E; font-size: 50px; text-align: center'
 
-    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Porcentaje total de pendientes"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Porcentaje de OT pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -168,9 +169,9 @@ def cant_pend_dashboard(df):
     pend = df.Ejecutada[df.Ejecutada=="No"].count()
 
     color = 'color: #F5A65B; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Cantidad total de pendientes"
+    div_style = "background:#FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Cantidad de OT pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -182,9 +183,9 @@ def cant_ejec_dashboard(df):
     ejec = df.Ejecutada[df.Ejecutada=="Si"].count()
 
     color = 'color: #32E875; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
-    titulo = "Cantidad total de ejecutadas"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Cantidad de OT ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
         f"<span style= '{title_style}'>{titulo}</span></br>"\
@@ -260,30 +261,32 @@ def graf_campus_acum_dashboard(df):
 def graf_ccosto_dashboard(df):
     conteo_ccosto = df.groupby(["Fecha","Nombre CCosto"]).size().reset_index(name="Cantidad")
 
-    fig = px.bar(conteo_ccosto, x="Fecha",y="Cantidad",color="Nombre CCosto")
+    fig = px.bar(conteo_ccosto, x="Fecha", y="Cantidad", color="Nombre CCosto", 
+                 barmode='stack',
+                 title="Cantidad diaria de OT por centro de costo")
 
     fig.update_layout(xaxis_title='Fecha',
-                      yaxis_title='Cantidad de solicitudes',
+                      yaxis_title='Cantidad de OT',
                       title={
-                          "text":"Cantidad diaria de solicitudes por centro de costos",
-                          "x":0.5,
+                          "text": "Cantidad diaria de OT por centro de costo",
+                          "x": 0.5,
                           "xanchor": "center"},
-                      title_font_color= "#D8E2DC",height=330)
+                      title_font_color= "#000000",height=330)
 
-    st.plotly_chart(fig,use_container_width=True) 
+    st.plotly_chart(fig, use_container_width=True) 
 
 def graf_ccosto_pie_dashboard(df):
     conteo_ccosto = df.groupby("Nombre CCosto").size().reset_index(name="Cantidad")
-    cant_ccosto_filtrado = conteo_ccosto.groupby('Nombre CCosto').filter(lambda x: x['Cantidad'].sum() > 2)
+    cant_ccosto_filtrado = conteo_ccosto.groupby('Nombre CCosto').filter(lambda x: x['Cantidad'].sum() > 0)
 
     fig = px.pie(cant_ccosto_filtrado,values="Cantidad",names="Nombre CCosto",hole=.6)
 
     fig.update_layout(
         title={
-            "text":"Total mensual por Centros de costo",
+            "text":"Distribución de OT por centro de costo",
             "x":0.5,
             "xanchor": "center"},
-        title_font_color= "#D8E2DC",
+        title_font_color= "#000000",
         font={
             "size":13}, height=350)
 
@@ -294,12 +297,12 @@ def graf_dias_dashboard(df):
     fig = px.line(conteo_servicio, x="Fecha",y="Cantidad",markers=True)
 
     fig.update_layout(xaxis_title='Fecha',
-                      yaxis_title='Cantidad de solicitudes',
+                      yaxis_title='Cantidad de OT',
                       title={
-                          "text":"Cantidad diaria de solicitudes",
+                          "text":"Cantidad diaria de OT",
                           "x":0.5,
                           "xanchor": "center"},
-                      title_font_color= "#D8E2DC", height=255)
+                      title_font_color= "#000000", height=255)
     
     st.plotly_chart(fig,use_container_width=True)
 
@@ -310,10 +313,10 @@ def graf_pie_campus_dashboard(df):
 
     fig.update_layout(
         title={
-            "text":"Porcentaje de solicitudes por campus",
+            "text":"Distribución de OT por campus",
             "x":0.5,
             "xanchor": "center"},
-        title_font_color= "#D8E2DC",
+        title_font_color= "#000000",
         font={
             "size":13}, height=320)
 
@@ -331,13 +334,13 @@ def mostrar_info_mes_actual(df, año, mes):
     color_ejec = 'color: #90EE90;' if porc_ejec >= 50 else 'color: orange;'
     color_pend = 'color: red;' if porc_pend > 60 else 'color: orange;'
 
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908); padding: 20px; border-radius: 30px; text-align: center;"
-    title_style = "font-size: 16px; font-weight: lighter; color: #F2F4F3; margin-bottom: 10px;"
+    div_style = "background: #FFFFFF; padding: 20px; border-radius: 30px; text-align: center;"
+    title_style = "font-size: 16px; font-weight: lighter; color: #000000; margin-bottom: 10px;"
     value_style_ejec = f"{color_ejec} font-size: 40px;"
     value_style_pend = f"{color_pend} font-size: 40px;"
 
     metric_html = f"<div style='{div_style}'>"\
-                  f"<span style='{title_style}'>Total de Solicitudes del Mes de {mes}</span></br>"\
+                  f"<span style='{title_style}'>Total de OT del Mes de {mes}</span></br>"\
                   f"<span style='color: #5DD39E; font-size: 43px;'>{total}</span></div>"\
                   f"<div style='{div_style}'>"\
                   f"<span style='{title_style}'>Porcentaje Ejecutadas</span></br>"\
@@ -350,69 +353,84 @@ def mostrar_info_mes_actual(df, año, mes):
     return st.write(metric_html, unsafe_allow_html=True)
 
 def grafico_barras_servicios(df):
+
+    # Agrupar y contar las cantidades de cada servicio
     conteo_servicios = df.groupby(['Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
 
+    # Filtrar y ordenar por cantidad de pendientes
+    conteo_pendientes = conteo_servicios[conteo_servicios['Ejecutada'] == 'Pendiente'].sort_values(by='Cantidad', ascending=False)
+    servicios_ordenados = conteo_pendientes['Tipo de Servicio'].tolist()
+
+    # Reordenar el DataFrame original basado en el orden de servicios_ordenados
+    conteo_servicios['Tipo de Servicio'] = pd.Categorical(conteo_servicios['Tipo de Servicio'], categories=servicios_ordenados, ordered=True)
+
+    # Crear el gráfico de barras
     fig = px.bar(conteo_servicios, x='Tipo de Servicio', y='Cantidad', color='Ejecutada',
-                 title='Cantidad de Órdenes por Servicio',
-                 labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Número de Órdenes'},
+                 title='Cantidad de OT Ejecutadas y Pendientes por Servicio',
+                 labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
                  barmode='group')
 
     fig.update_layout(
-            title={
-            'text': 'Cantidad de Órdenes por Servicio',
-            'y':0.9,
-            'x':0.5,
+        title={
+            'text': 'Cantidad de OT Ejecutadas y Pendientes por Servicio',
+            'y': 0.9,
+            'x': 0.5,
             'xanchor': 'center',
-            'yanchor': 'top'
-            },
-            xaxis_title='Servicio',
-            yaxis_title='Número de Órdenes',
-            legend_title_text='Estado',
-            xaxis={'categoryorder':'total descending'})
+            'yanchor': 'top',
+            'font': {'size': 24} 
+        },
+        xaxis_title='Servicio',
+        yaxis_title='Cantidad de OT',
+        legend_title_text='Estado',
+        xaxis={'categoryorder': 'array', 'categoryarray': servicios_ordenados}
+    )
 
     return st.plotly_chart(fig, use_container_width=True)
 
 def grafico_barras_mensuales(df):
+    # Configurar el locale para mostrar los nombres de los meses en español
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8') 
+    except:
+        locale.setlocale(locale.LC_TIME, 'es_ES')  
+
     # Asegurarnos de que el DataFrame tiene una columna de fecha en formato datetime
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'])
     
-    # Crear una columna de 'Mes-Año' para agrupar por mes, convertida a string correctamente
-    df['Mes-Año'] = df['Fecha'].dt.to_period('M').dt.strftime('%Y-%m')
+    # Crear una columna de 'Mes' para agrupar por mes, convertida a string correctamente
+    df['Mes-Año'] = df['Fecha'].dt.to_period('M')
+    df['Mes'] = df['Mes-Año'].dt.strftime('%B').str.capitalize()
 
-    # Filtrar los datos para incluir sólo los meses antes del mes actual
-    mes_actual = pd.to_datetime('today').to_period('M').strftime('%Y-%m')
-    df_filtrado = df[df['Mes-Año'] < mes_actual]
+    # Mapear los valores de la columna 'Ejecutada' a 'Ejecutada' y 'Pendiente'
+    df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
+
+    orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    df['Mes'] = pd.Categorical(df['Mes'], categories=orden_meses, ordered=True)
 
     # Contar las ocurrencias de cada estado por mes
-    conteo_mensual = df_filtrado.groupby(['Mes-Año', 'Ejecutada']).size().reset_index(name='Cantidad')
+    conteo_mensual = df.groupby(['Mes', 'Ejecutada']).size().reset_index(name='Cantidad')
+
+    conteo_mensual = conteo_mensual[conteo_mensual['Cantidad'] > 0]
     
     # Crear el gráfico de barras
-    fig = px.bar(conteo_mensual, x='Mes-Año', y='Cantidad', color='Ejecutada',
-                 title='Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
-                 labels={'Mes-Año': 'Mes', 'Cantidad': 'Número de Órdenes'},
+    fig = px.bar(conteo_mensual, x='Mes', y='Cantidad', color='Ejecutada',
+                 labels={'Mes': 'Mes', 'Cantidad': 'Cantidad de OT'},
                  barmode='group')
 
     # Mejorar el diseño del gráfico
-    fig.update_layout(
-             title={
-            'text': 'Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
-            'y':0.9,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'
-            },       
+    fig.update_layout(      
             xaxis_title='Mes',
-            yaxis_title='Número de Órdenes',
+            yaxis_title='Cantidad de OT',
             legend_title_text='Estado',
-            xaxis={'categoryorder':'total descending'})
+            xaxis={'categoryorder':'array', 'categoryarray': orden_meses})
 
     return st.plotly_chart(fig, use_container_width=True)
 
 def filtros_dashboard(df):
     st.sidebar.title("Filtros")
 
-    historico = st.sidebar.checkbox("Resumen histórico")
+    historico = st.sidebar.checkbox("Resumen anual")
     servicio = st.sidebar.selectbox("Servicio",df["Tipo de Servicio"].unique().tolist())
     año = st.sidebar.selectbox("Año", df["Año"].unique().tolist())
     if año == año_actual:
@@ -439,8 +457,8 @@ def calcular_promedio_dias(df):
     promedio_dias = df_validos['Diferencia en Días'].mean()
 
     color = 'color: #F5A65B; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #0A0908, #22333B);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Promedio de días OT ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
@@ -462,8 +480,8 @@ def calcular_dias_no_ejecutadas(df):
     promedio_dias_no_ejecutadas = df_no_ejecutadas['Diferencia en Días No Ejecutadas'].mean()
 
     color = 'color: #F5A65B; font-size: 50px; text-align: center'
-    div_style = "background: linear-gradient(to right, #22333B, #0A0908);padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#F2F4F3;margin-bottom:10px;"
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Promedio de días OT No ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
@@ -480,7 +498,7 @@ def dashboard_anual(df):
     último_mes = df.Mes.unique().tolist()[0]
     
     size_title = 'font-size: 34px; text-align: center; color: #000000; font-weight: lighter'
-    title = f"Indicadores Dirección de Servicios y Logística - Año {año_actual}"
+    title = f"Indicadores Dirección de Servicios y Logística Año {año_actual}"
     st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
   
     c1,c2,c3,c4,c5,c6 = st.columns(6)
@@ -502,6 +520,10 @@ def dashboard_anual(df):
 
     st.write('<br>', unsafe_allow_html=True)
 
+    size_title2 = 'font-size: 28px; text-align: center; color: #000000; font-weight: lighter'
+    title2 = f"Cantidad de Órdenes Ejecutadas y Pendientes por Mes"
+    st.write(f'<p style="{size_title2}">{title2}</p>',unsafe_allow_html=True)
+
     c1,c2 = st.columns([1,3])
     with c1:
         mostrar_info_mes_actual(df, último_año, último_mes)
@@ -515,9 +537,9 @@ def dashboard_personalizado(df):
     df_filtrado(df)
     filtro, titulo = filtros_dashboard(df)
 
-    size_title = 'font-size: 22px; text-align: center; color: #D8E2DC; font-weight: lighter'
+    size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
     if titulo == 1:
-            title = f"El servicio de {filtro['Tipo de Servicio'].unique().tolist()[0]} históricamente en el año {filtro.Año.unique().tolist()[0]} presenta los siguientes indicadores"
+            title = f"El servicio de {filtro['Tipo de Servicio'].unique().tolist()[0]} en el año {filtro.Año.unique().tolist()[0]} presenta los siguientes indicadores"
             st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
     else:
         title = f"El servicio de {filtro['Tipo de Servicio'].unique().tolist()[0]} en el mes de {filtro.Mes.unique().tolist()[0]} del año {filtro.Año.unique().tolist()[0]} presenta los siguientes indicadores"
@@ -799,8 +821,8 @@ def analisis_exp(df):
         distribucion_col_categoricas(df)
 
 def principal():
-    size_title = 'font-size: 24px; text-align: center; color: #D8E2DC; font-weight: lighter'
-    title = "Aplicación para análisis exploratorio y visual de la DSL"
+    size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
+    title = "Dashboard para análisis de órdenes de trabajo de la DSL"
     st.sidebar.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
     st.sidebar.write("Seleccione una base de datos")
     archivo_excel = st.sidebar.file_uploader("Elija archivo Excel",type=["xlsx"])

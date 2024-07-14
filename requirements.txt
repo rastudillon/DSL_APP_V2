@@ -9,4 +9,3 @@ seaborn
 streamlit
 openpyxl
 datetime
-locale

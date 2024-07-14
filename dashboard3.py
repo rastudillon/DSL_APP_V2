@@ -406,23 +406,20 @@ def grafico_barras_mensuales(df):
     conteo_mensual = df.groupby(['Mes', 'Ejecutada']).size().reset_index(name='Cantidad')
 
     # Filtrar los meses que tienen datos
-    conteo_mensual = conteo_mensual[conteo_mensual['Cantidad'] > 0]
     meses_con_datos = conteo_mensual['Mes'].unique()
-
+    conteo_mensual = conteo_mensual[conteo_mensual['Mes'].isin(meses_con_datos)]
+    
     # Crear el gráfico de barras
     fig = px.bar(conteo_mensual, x='Mes', y='Cantidad', color='Ejecutada',
                  labels={'Mes': 'Mes', 'Cantidad': 'Cantidad de OT'},
                  barmode='group')
 
     # Mejorar el diseño del gráfico
-    fig.update_layout(
-        xaxis_title='Mes',
-        yaxis_title='Cantidad de OT',
-        legend_title_text='Estado',
-        xaxis={
-            'categoryorder': 'array', 
-            'categoryarray': [mes for mes in orden_meses if mes in meses_con_datos]
-        })
+    fig.update_layout(      
+            xaxis_title='Mes',
+            yaxis_title='Cantidad de OT',
+            legend_title_text='Estado',
+            xaxis={'categoryorder':'array', 'categoryarray': [mes for mes in orden_meses if mes in meses_con_datos]})
 
     return st.plotly_chart(fig, use_container_width=True)
 

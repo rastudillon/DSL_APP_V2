@@ -3,7 +3,6 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime
-import locale
 # import seaborn as sns
 import plotly.express as px
 # import missingno as msn
@@ -388,12 +387,6 @@ def grafico_barras_servicios(df):
     return st.plotly_chart(fig, use_container_width=True)
 
 def grafico_barras_mensuales(df):
-    # Configurar el locale para mostrar los nombres de los meses en español
-    try:
-        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8') 
-    except:
-        locale.setlocale(locale.LC_TIME, 'es_ES')  
-
     # Asegurarnos de que el DataFrame tiene una columna de fecha en formato datetime
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'])
@@ -405,25 +398,31 @@ def grafico_barras_mensuales(df):
     # Mapear los valores de la columna 'Ejecutada' a 'Ejecutada' y 'Pendiente'
     df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
 
+    # Definir el orden correcto de los meses
     orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
     df['Mes'] = pd.Categorical(df['Mes'], categories=orden_meses, ordered=True)
 
     # Contar las ocurrencias de cada estado por mes
     conteo_mensual = df.groupby(['Mes', 'Ejecutada']).size().reset_index(name='Cantidad')
 
+    # Filtrar los meses que tienen datos
     conteo_mensual = conteo_mensual[conteo_mensual['Cantidad'] > 0]
-    
+    meses_con_datos = conteo_mensual['Mes'].unique()
+
     # Crear el gráfico de barras
     fig = px.bar(conteo_mensual, x='Mes', y='Cantidad', color='Ejecutada',
                  labels={'Mes': 'Mes', 'Cantidad': 'Cantidad de OT'},
                  barmode='group')
 
     # Mejorar el diseño del gráfico
-    fig.update_layout(      
-            xaxis_title='Mes',
-            yaxis_title='Cantidad de OT',
-            legend_title_text='Estado',
-            xaxis={'categoryorder':'array', 'categoryarray': orden_meses})
+    fig.update_layout(
+        xaxis_title='Mes',
+        yaxis_title='Cantidad de OT',
+        legend_title_text='Estado',
+        xaxis={
+            'categoryorder': 'array', 
+            'categoryarray': [mes for mes in orden_meses if mes in meses_con_datos]
+        })
 
     return st.plotly_chart(fig, use_container_width=True)
 

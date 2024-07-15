@@ -353,17 +353,16 @@ def mostrar_info_mes_actual(df, año, mes):
 
 def grafico_barras_servicios(df):
 
-    # Agrupar y contar las cantidades de cada servicio
     conteo_servicios = df.groupby(['Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
 
-    # Filtrar y ordenar por cantidad de pendientes
     conteo_pendientes = conteo_servicios[conteo_servicios['Ejecutada'] == 'Pendiente'].sort_values(by='Cantidad', ascending=False)
     servicios_ordenados = conteo_pendientes['Tipo de Servicio'].tolist()
 
-    # Reordenar el DataFrame original basado en el orden de servicios_ordenados
+    todos_los_servicios = df['Tipo de Servicio'].unique().tolist()
+    servicios_ordenados.extend([servicio for servicio in todos_los_servicios if servicio not in servicios_ordenados])
+
     conteo_servicios['Tipo de Servicio'] = pd.Categorical(conteo_servicios['Tipo de Servicio'], categories=servicios_ordenados, ordered=True)
 
-    # Crear el gráfico de barras
     fig = px.bar(conteo_servicios, x='Tipo de Servicio', y='Cantidad', color='Ejecutada',
                  title='Cantidad de OT Ejecutadas y Pendientes por Servicio',
                  labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
@@ -376,7 +375,7 @@ def grafico_barras_servicios(df):
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top',
-            'font': {'size': 24} 
+            'font': {'size': 24}
         },
         xaxis_title='Servicio',
         yaxis_title='Cantidad de OT',
@@ -386,36 +385,44 @@ def grafico_barras_servicios(df):
 
     return st.plotly_chart(fig, use_container_width=True)
 
+
 def grafico_barras_mensuales(df):
     # Asegurarnos de que el DataFrame tiene una columna de fecha en formato datetime
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'])
     
-    # Crear una columna de 'Mes' para agrupar por mes, convertida a string correctamente
-    df['Mes-Año'] = df['Fecha'].dt.to_period('M')
-    df['Mes'] = df['Mes-Año'].dt.strftime('%B').str.capitalize()
+    # Crear una columna de 'Mes-Año' para agrupar por mes, convertida a string correctamente
+    df['Mes-Año'] = df['Fecha'].dt.to_period('M').dt.strftime('%Y-%m')
 
     # Mapear los valores de la columna 'Ejecutada' a 'Ejecutada' y 'Pendiente'
     df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
 
-    # Definir el orden correcto de los meses
-    orden_meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    df['Mes'] = pd.Categorical(df['Mes'], categories=orden_meses, ordered=True)
-
     # Contar las ocurrencias de cada estado por mes
-    conteo_mensual = df.groupby(['Mes', 'Ejecutada']).size().reset_index(name='Cantidad')
+    conteo_mensual = df.groupby(['Mes-Año', 'Ejecutada']).size().reset_index(name='Cantidad')
+
+    # Filtrar los meses que tienen datos
+    conteo_mensual = conteo_mensual[conteo_mensual['Cantidad'] > 0]
 
     # Crear el gráfico de barras
-    fig = px.bar(conteo_mensual, x='Mes', y='Cantidad', color='Ejecutada',
-                 labels={'Mes': 'Mes', 'Cantidad': 'Cantidad de OT'},
+    fig = px.bar(conteo_mensual, x='Mes-Año', y='Cantidad', color='Ejecutada',
+                 title='Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
+                 labels={'Mes-Año': 'Mes', 'Cantidad': 'Número de Órdenes'},
                  barmode='group')
 
     # Mejorar el diseño del gráfico
-    fig.update_layout(      
+    fig.update_layout(
+            title={
+                'text': 'Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
+                'y': 0.9,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'
+            },
             xaxis_title='Mes',
-            yaxis_title='Cantidad de OT',
+            yaxis_title='Número de Órdenes',
             legend_title_text='Estado',
-            xaxis={'categoryorder':'array', 'categoryarray': orden_meses})
+            xaxis={'categoryorder': 'total ascending'}
+    )
 
     return st.plotly_chart(fig, use_container_width=True)
 

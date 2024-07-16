@@ -14,10 +14,26 @@ ruta_logo = "logo3_uta.png"
 logo = Image.open(ruta_logo)
 tamaño_logo = (290,290)
 
+usuarios_permitidos = {
+    "usuario": "dsl2024"
+}
+
 st.set_page_config(layout="wide", page_title="Dashboard DSL", page_icon=":chart_with_upwards_trend:", initial_sidebar_state="collapsed")
 st.sidebar.image(logo,width=tamaño_logo[0])
 
-@st.cache_data
+@st.cache_data(experimental_allow_widgets=True)
+
+def mostrar_login():
+    st.title("Login")
+    username = st.text_input("Nombre de usuario")
+    password = st.text_input("Contraseña", type="password")
+    if st.button("Iniciar sesión"):
+        if username in usuarios_permitidos and usuarios_permitidos[username] == password:
+            st.session_state['logged_in'] = True
+            st.session_state['username'] = username
+            st.experimental_rerun()
+        else:
+            st.error("Nombre de usuario o contraseña incorrectos")
 
 def cargar_datos(archivo_excel):
     return pd.read_excel(archivo_excel)
@@ -28,67 +44,66 @@ def df_nulos(df):
     # msn.matrix(df,ax=ax, fontsize=5.5,sparkline=False)
     # return st.pyplot(fig)
 
-def porc_pend_dashboard_anual(df):
-    ejec = df.Ejecutada[(df.Año==año_actual)&(df.Ejecutada=="Si")].value_counts()
-    pend = df.Ejecutada[(df.Año==año_actual)&(df.Ejecutada=="No")].value_counts()
-    total = np.sum(ejec)+np.sum(pend)
+def obtener_color(porc_pend):
+    if porc_pend >= 50:
+        return 'color: red; font-size: 50px; text-align: center'
+    elif 31 <= porc_pend <= 49:
+        return 'color: orange; font-size: 50px; text-align: center'
+    elif 0 <= porc_pend <= 30:
+        return 'color: #5DD39E; font-size: 50px; text-align: center'
+
+def porc_pend_dashboard_anual(df, año):
+    ejec = df.Ejecutada[(df.Año == año) & (df.Ejecutada == "Si")].value_counts()
+    pend = df.Ejecutada[(df.Año == año) & (df.Ejecutada == "No")].value_counts()
+    total = np.sum(ejec) + np.sum(pend)
     if total > 0:
         porc = round(np.sum(pend) / total * 100)
     else:
-        porc = 0  
+        porc = 0
 
-    if porc >= 40:
-        color = 'color: red; font-size: 50px; text-align: center'
-    elif porc >= 30:
-        color = 'color: orange; font-size: 50px; text-align: center'
-    else:
-        color = 'color: #5DD39E; font-size: 50px; text-align: center'
+    color = obtener_color(porc)
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Porcentaje de OT pendientes"
 
     metric_html = f"<div style= '{div_style}'>"\
-        f"<span style= '{title_style}'>{titulo}</span></br>"\
-        f"<span style= '{color}'>{porc}%</span></div>"
+                  f"<span style= '{title_style}'>{titulo}</span></br>"\
+                  f"<span style= '{color}'>{porc}%</span></div>"
     if total == 0:
         return st.write("Periodo no registrado")
     else:
-        return st.write(metric_html,unsafe_allow_html=True)
+        return st.write(metric_html, unsafe_allow_html=True)
 
-def porc_ejec_dashboard_anual(df):
-    ejec = df.Ejecutada[(df.Año==año_actual)&(df.Ejecutada=="Si")].value_counts()
-    pend = df.Ejecutada[(df.Año==año_actual)&(df.Ejecutada=="No")].value_counts()
-    total = np.sum(ejec)+np.sum(pend)
+def porc_ejec_dashboard_anual(df, año):
+    ejec = df.Ejecutada[(df.Año == año) & (df.Ejecutada == "Si")].value_counts()
+    pend = df.Ejecutada[(df.Año == año) & (df.Ejecutada == "No")].value_counts()
+    total = np.sum(ejec) + np.sum(pend)
 
     if total > 0:  # Asegurarse de que total no sea cero para evitar división por cero
         porc = round(np.sum(ejec) / total * 100)
     else:
-        porc = 0  
+        porc = 0
 
-    if porc >= 70:
-        color = 'color: #009B72; font-size: 50px;'
-    elif porc >= 60:
-        color = 'color: orange; font-size: 50px;'
-    else:
-        color = 'color: red; font-size: 50px;'
+    porc_pend = 100 - porc  # Calcular el porcentaje de pendientes
+    color = obtener_color(porc_pend)
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Porcentaje de OT ejecutadas"
 
     metric_html = f"<div style= '{div_style}'>"\
-        f"<span style= '{title_style}'>{titulo}</span></br>"\
-        f"<span style= '{color}'>{porc}%</span></div>"
+                  f"<span style= '{title_style}'>{titulo}</span></br>"\
+                  f"<span style= '{color}'>{porc}%</span></div>"
     if total == 0:
         return st.write("Periodo no registrado")
     else:
-        return st.write(metric_html,unsafe_allow_html=True)
+        return st.write(metric_html, unsafe_allow_html=True)
     
-def cant_pend_dashboard_anual(df):
-    pend = df.Ejecutada[(df.Ejecutada=="No")&(df.Año==año_actual)].count()
+def cant_pend_dashboard_anual(df, año):
+    pend = df.Ejecutada[(df.Ejecutada=="No")&(df.Año==año)].count()
 
-    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Cantidad de pendientes"
@@ -99,10 +114,10 @@ def cant_pend_dashboard_anual(df):
     
     return st.write(metric_html,unsafe_allow_html=True)
 
-def cant_ejec_dashboard_anual(df):    
-    ejec = df.Ejecutada[(df.Ejecutada=="Si")&(df.Año==año_actual)].count()
+def cant_ejec_dashboard_anual(df, año):    
+    ejec = df.Ejecutada[(df.Ejecutada=="Si")&(df.Año==año)].count()
 
-    color = 'color: #32E875; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Cantidad de ejecutadas"
@@ -119,12 +134,9 @@ def porc_ejec_dashboard_servicio(df):
     total = np.sum(ejec)+np.sum(pend)
     porc = round(np.sum(ejec)/total*100)
 
-    if porc >= 70:
-        color = 'color: #009B72; font-size: 50px;'
-    elif porc >= 60:
-        color = 'color: orange; font-size: 50px;'
-    else:
-        color = 'color: red; font-size: 50px;'
+    porc_ejec = round(np.sum(pend)/total*100)
+
+    color = obtener_color(porc_ejec)
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
@@ -145,12 +157,7 @@ def porc_no_ejec_dashboard_servicio(df):
     total = np.sum(ejec)+np.sum(pend)
     porc = round(np.sum(pend)/total*100)
 
-    if porc >= 40:
-        color = 'color: red; font-size: 50px; text-align: center'
-    elif porc >= 30:
-        color = 'color: orange; font-size: 50px; text-align: center'
-    else:
-        color = 'color: #5DD39E; font-size: 50px; text-align: center'
+    color = obtener_color(porc)
 
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
@@ -165,9 +172,10 @@ def porc_no_ejec_dashboard_servicio(df):
         return st.write(metric_html,unsafe_allow_html=True)
     
 def cant_pend_dashboard(df):
+    
     pend = df.Ejecutada[df.Ejecutada=="No"].count()
 
-    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background:#FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Cantidad de OT pendientes"
@@ -181,7 +189,7 @@ def cant_pend_dashboard(df):
 def cant_ejec_dashboard(df):    
     ejec = df.Ejecutada[df.Ejecutada=="Si"].count()
 
-    color = 'color: #32E875; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Cantidad de OT ejecutadas"
@@ -327,20 +335,19 @@ def mostrar_info_mes_actual(df, año, mes):
     total = len(df_mes_actual)
     ejecutadas = len(df_mes_actual[df_mes_actual['Ejecutada'] == 'Si'])
     pendientes = len(df_mes_actual[df_mes_actual['Ejecutada'] == 'No'])
-    porc_ejec = round((ejecutadas / total) * 100, 2) if total > 0 else 0
-    porc_pend = round((pendientes / total) * 100, 2) if total > 0 else 0
+    porc_ejec = round((ejecutadas / total) * 100) if total > 0 else 0
+    porc_pend = round((pendientes / total) * 100) if total > 0 else 0
 
-    color_ejec = 'color: #90EE90;' if porc_ejec >= 50 else 'color: orange;'
-    color_pend = 'color: red;' if porc_pend > 60 else 'color: orange;'
+    color = obtener_color(porc_pend)
 
     div_style = "background: #FFFFFF; padding: 20px; border-radius: 30px; text-align: center;"
     title_style = "font-size: 16px; font-weight: lighter; color: #000000; margin-bottom: 10px;"
-    value_style_ejec = f"{color_ejec} font-size: 40px;"
-    value_style_pend = f"{color_pend} font-size: 40px;"
+    value_style_ejec = f"{color} font-size: 40px;"
+    value_style_pend = f"{color} font-size: 40px;"
 
     metric_html = f"<div style='{div_style}'>"\
                   f"<span style='{title_style}'>Total de OT del Mes de {mes}</span></br>"\
-                  f"<span style='color: #5DD39E; font-size: 43px;'>{total}</span></div>"\
+                  f"<span style='color: #808B96; font-size: 43px;'>{total}</span></div>"\
                   f"<div style='{div_style}'>"\
                   f"<span style='{title_style}'>Porcentaje Ejecutadas</span></br>"\
                   f"<span style='{value_style_ejec}'>{porc_ejec}%</span></div>"\
@@ -351,7 +358,9 @@ def mostrar_info_mes_actual(df, año, mes):
 
     return st.write(metric_html, unsafe_allow_html=True)
 
-def grafico_barras_servicios(df):
+def grafico_barras_servicios(df, año):
+    df = df[(df['Año'] == año)]
+    df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
 
     conteo_servicios = df.groupby(['Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
 
@@ -385,41 +394,27 @@ def grafico_barras_servicios(df):
 
     return st.plotly_chart(fig, use_container_width=True)
 
+def grafico_barras_mensuales(df, año):
+    df = df[(df['Año'] == año)]
 
-def grafico_barras_mensuales(df):
-    # Asegurarnos de que el DataFrame tiene una columna de fecha en formato datetime
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'])
     
-    # Crear una columna de 'Mes-Año' para agrupar por mes, convertida a string correctamente
     df['Mes-Año'] = df['Fecha'].dt.to_period('M').dt.strftime('%Y-%m')
 
-    # Mapear los valores de la columna 'Ejecutada' a 'Ejecutada' y 'Pendiente'
     df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
 
-    # Contar las ocurrencias de cada estado por mes
     conteo_mensual = df.groupby(['Mes-Año', 'Ejecutada']).size().reset_index(name='Cantidad')
 
-    # Filtrar los meses que tienen datos
     conteo_mensual = conteo_mensual[conteo_mensual['Cantidad'] > 0]
 
-    # Crear el gráfico de barras
     fig = px.bar(conteo_mensual, x='Mes-Año', y='Cantidad', color='Ejecutada',
-                 title='Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
-                 labels={'Mes-Año': 'Mes', 'Cantidad': 'Número de Órdenes'},
+                 labels={'Mes-Año': 'Mes', 'Cantidad': 'Cantidad de OT'},
                  barmode='group')
 
-    # Mejorar el diseño del gráfico
     fig.update_layout(
-            title={
-                'text': 'Cantidad de Órdenes Ejecutadas y Pendientes por Mes',
-                'y': 0.9,
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'
-            },
             xaxis_title='Mes',
-            yaxis_title='Número de Órdenes',
+            yaxis_title='Cantidad de OT',
             legend_title_text='Estado',
             xaxis={'categoryorder': 'total ascending'}
     )
@@ -443,7 +438,9 @@ def filtros_dashboard(df):
         mes = st.sidebar.selectbox("Mes", df["Mes"].unique().tolist())
         return df[(df["Tipo de Servicio"]==servicio)&(df.Año==año)&(df.Mes==mes)], 0
     
-def calcular_promedio_dias(df):
+def calcular_promedio_dias(df, año):
+    df = df[(df['Año'] == año)]
+                       
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha de Término']):
@@ -455,7 +452,7 @@ def calcular_promedio_dias(df):
 
     promedio_dias = df_validos['Diferencia en Días'].mean()
 
-    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Promedio de días OT ejecutadas"
@@ -466,7 +463,39 @@ def calcular_promedio_dias(df):
 
     return st.write(metric_html,unsafe_allow_html=True)
 
-def calcular_dias_no_ejecutadas(df):
+def calcular_promedio_dias_ejec_serv(df):
+    # Convertir las columnas de fecha a datetime si no lo son
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha de Término']):
+        df['Fecha de Término'] = pd.to_datetime(df['Fecha de Término'], errors='coerce')
+
+    # Calcular la diferencia en días
+    df['Diferencia en Días'] = (df['Fecha de Término'] - df['Fecha']).dt.days
+
+    # Filtrar solo las filas con diferencias en días válidas (no negativas y no NaN)
+    df_validos = df[(df['Diferencia en Días'] >= 0) & (df['Diferencia en Días'].notna())]
+
+    # Calcular el promedio de días
+    if df_validos.empty:
+        promedio_dias = 0
+    else:
+        promedio_dias = df_validos['Diferencia en Días'].mean()
+
+    color = 'color: #808B96; font-size: 50px; text-align: center'
+    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
+    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    titulo = "Promedio de días OT ejecutadas"
+
+    metric_html = f"<div style= '{div_style}'>"\
+                  f"<span style= '{title_style}'>{titulo}</span></br>"\
+                  f"<span style= '{color}'>{round(promedio_dias)}</span></div>"
+
+    return st.write(metric_html, unsafe_allow_html=True)
+
+def calcular_dias_no_ejecutadas(df, año):
+    df = df[(df['Año'] == año)]
+
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
@@ -478,7 +507,7 @@ def calcular_dias_no_ejecutadas(df):
 
     promedio_dias_no_ejecutadas = df_no_ejecutadas['Diferencia en Días No Ejecutadas'].mean()
 
-    color = 'color: #F5A65B; font-size: 50px; text-align: center'
+    color = 'color: #808B96; font-size: 50px; text-align: center'
     div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
     title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
     titulo = "Promedio de días OT No ejecutadas"
@@ -502,49 +531,55 @@ def dashboard_anual(df):
   
     c1,c2,c3,c4,c5,c6 = st.columns(6)
     with c1:
-        porc_pend_dashboard_anual(df)
+        porc_pend_dashboard_anual(df, último_año)
 
     with c2:
-        porc_ejec_dashboard_anual(df)
+        porc_ejec_dashboard_anual(df, último_año)
 
     with c3:
-        cant_pend_dashboard_anual(df)
+        cant_pend_dashboard_anual(df, último_año)
 
     with c4:
-        cant_ejec_dashboard_anual(df)
+        cant_ejec_dashboard_anual(df, último_año)
     with c5:
-        calcular_promedio_dias(df)
+        calcular_promedio_dias(df, último_año)
     with c6:
-        calcular_dias_no_ejecutadas(df)
+        calcular_dias_no_ejecutadas(df,último_año)
 
     st.write('<br>', unsafe_allow_html=True)
 
     size_title2 = 'font-size: 28px; text-align: center; color: #000000; font-weight: lighter'
-    title2 = f"Cantidad de Órdenes Ejecutadas y Pendientes por Mes"
+    title2 = f"Estado de OT Ejecutadas y Pendientes Mensual"
     st.write(f'<p style="{size_title2}">{title2}</p>',unsafe_allow_html=True)
 
     c1,c2 = st.columns([1,3])
     with c1:
         mostrar_info_mes_actual(df, último_año, último_mes)
     with c2:
-        grafico_barras_mensuales(df)
+        grafico_barras_mensuales(df, último_año)
 
     with st.container():
-        grafico_barras_servicios(df)
+        grafico_barras_servicios(df, último_año)
 
 def dashboard_personalizado(df):
     df_filtrado(df)
     filtro, titulo = filtros_dashboard(df)
 
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
-    if titulo == 1:
+
+    if filtro.empty:
+        title = "No hay información disponible para el servicio y período seleccionado"
+        st.write(f'<p style="{size_title}">{title}</p>', unsafe_allow_html=True)
+        return
+    
+    elif titulo == 1:
             title = f"El servicio de {filtro['Tipo de Servicio'].unique().tolist()[0]} en el año {filtro.Año.unique().tolist()[0]} presenta los siguientes indicadores"
             st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
     else:
         title = f"El servicio de {filtro['Tipo de Servicio'].unique().tolist()[0]} en el mes de {filtro.Mes.unique().tolist()[0]} del año {filtro.Año.unique().tolist()[0]} presenta los siguientes indicadores"
         st.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
 
-    c1,c2,c3,c4 = st.columns(4)
+    c1,c2,c3,c4,c5 = st.columns(5)
     with c1:
         porc_no_ejec_dashboard_servicio(filtro)
 
@@ -556,6 +591,9 @@ def dashboard_personalizado(df):
 
     with c4:
         cant_ejec_dashboard(filtro)
+    
+    with c5:
+        calcular_promedio_dias_ejec_serv(filtro)
 
     c1,c2 = st.columns(2)
     with c1:
@@ -825,12 +863,27 @@ def principal():
     st.sidebar.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
     st.sidebar.write("Seleccione una base de datos")
     archivo_excel = st.sidebar.file_uploader("Elija archivo Excel",type=["xlsx"])
-    bd_default = "solicitudes_2024.xlsx"
+    bd_default = "ot_2019_2024_15_07_2024.xlsx"
     df = cargar_datos(bd_default)
     if archivo_excel is None:
-        dashboard_anual(df)
+        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de gráficos"])
+        
+        if opciones == "Dashboard Personalizado":
+            dashboard_personalizado(df)
+
+        elif opciones == "Dashboard Anual":
+            dashboard_anual(df)
+
+        elif opciones == "Análisis Exploratorio":
+            analisis_exp(df)
+
+        elif opciones == "Generador de gráficos":
+
+            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel","Curva de Bell"])
+            crear_grafico(tipo_grafico,df)
+
     if archivo_excel is not None:
-        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Análisis Exploratorio","Gráficos"])
+        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de gráficos"])
         df_dsl = cargar_datos(archivo_excel)
         
         if opciones == "Dashboard Personalizado":
@@ -842,9 +895,16 @@ def principal():
         elif opciones == "Análisis Exploratorio":
             analisis_exp(df_dsl)
 
-        elif opciones == "Gráficos":
+        elif opciones == "Generador de gráficos":
 
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel","Curva de Bell"])
             crear_grafico(tipo_grafico,df_dsl)
-            
-principal()
+        
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+
+if st.session_state['logged_in']:
+    principal()
+
+else:
+    mostrar_login()

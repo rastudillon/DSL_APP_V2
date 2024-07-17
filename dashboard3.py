@@ -346,13 +346,13 @@ def mostrar_info_mes_actual(df, año, mes):
     value_style_pend = f"{color} font-size: 40px;"
 
     metric_html = f"<div style='{div_style}'>"\
-                  f"<span style='{title_style}'>Total de OT del Mes de {mes}</span></br>"\
+                  f"<span style='{title_style}'>Cantidad de OT del mes de {mes}</span></br>"\
                   f"<span style='color: #808B96; font-size: 43px;'>{total}</span></div>"\
                   f"<div style='{div_style}'>"\
-                  f"<span style='{title_style}'>Porcentaje Ejecutadas</span></br>"\
+                  f"<span style='{title_style}'>Porcentaje de OT ejecutadas</span></br>"\
                   f"<span style='{value_style_ejec}'>{porc_ejec}%</span></div>"\
                   f"<div style='{div_style}'>"\
-                  f"<span style='{title_style}'>Porcentaje Pendientes</span></br>"\
+                  f"<span style='{title_style}'>Porcentaje de OT pendientes</span></br>"\
                   f"<span style='{value_style_pend}'>{porc_pend}%</span></div>"
 
 

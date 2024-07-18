@@ -861,10 +861,11 @@ def principal():
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
     title = "Dashboard para análisis de órdenes de trabajo de la DSL"
     st.sidebar.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
-    st.sidebar.write("Seleccione una base de datos")
-    archivo_excel = st.sidebar.file_uploader("Elija archivo Excel",type=["xlsx"])
+    #st.sidebar.write("Seleccione una base de datos")
+    #archivo_excel = st.sidebar.file_uploader("Elija archivo Excel",type=["xlsx"])
     bd_default = "ot_2019_2024_15_07_2024.xlsx"
     df = cargar_datos(bd_default)
+    archivo_excel = bd_default
     if archivo_excel is None:
         opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de gráficos"])
         

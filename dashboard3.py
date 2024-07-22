@@ -698,7 +698,7 @@ def grafico_barras(df):
     
     st.title('Generador de Gráficos de Barras')
     
-    tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', options=['Personalizado', 'Histórico por servicio', 'Histórico por año'])
+    tipo_grafico = st.selectbox('Selecciona opción de gráfico', options=['Personalizado', 'Histórico por servicio', 'Histórico por año'])
     
     valores_columnas = df.columns.tolist()
     

@@ -638,7 +638,6 @@ def df_filtrado (df):
     df["Año"] = df["Fecha"].dt.year
     df["Mes"] = df["Fecha"].dt.month
     df.Mes = df.Mes.map(dicc_meses,na_action="ignore")
-    df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
     
     cambiar_nombres = {"Centro de Costo_cod":"Código CCosto","Centro de Costo_dsc":"Nombre CCosto"}
     
@@ -717,6 +716,7 @@ def grafico_barras(df):
     
     elif tipo_grafico == 'Histórico por servicio':
         conteo_servicios = df.groupby(['Año', 'Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
+        df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
         
         if st.button('Generar gráfico'):
             fig = px.bar(conteo_servicios, x='Tipo de Servicio', y='Cantidad', color='Ejecutada', facet_col='Año',
@@ -742,6 +742,7 @@ def grafico_barras(df):
     
     elif tipo_grafico == 'Histórico por año':
         conteo_anual = df.groupby(['Año', 'Ejecutada']).size().reset_index(name='Cantidad')
+        df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
         
         if st.button('Generar gráfico'):
             fig = px.bar(conteo_anual, x='Año', y='Cantidad', color='Ejecutada',

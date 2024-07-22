@@ -930,7 +930,7 @@ def principal():
 
         elif opciones == "Generador de Gráficos":
 
-            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
+            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de gráfico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
@@ -948,7 +948,7 @@ def principal():
 
         elif opciones == "Generador de Gráficos":
 
-            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
+            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de gráfico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)
         
 if 'logged_in' not in st.session_state:

@@ -616,6 +616,10 @@ def df_filtrado (df):
                 "Material Utilizado","Rut Responsable_cod","Rut Responsable_dsc","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc",
                 "Ubicación Específica","Ubicación","Fecha y Hora Sistema"], inplace=True)
     df.fillna(0,inplace=True)
+
+    if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+
     df["Ejecutada"] = df["Fecha de Término"].apply(lambda x: "No" if x == 0 else "Si")
     dicc_meses = {
         1:"Enero",
@@ -634,6 +638,7 @@ def df_filtrado (df):
     df["Año"] = df["Fecha"].dt.year
     df["Mes"] = df["Fecha"].dt.month
     df.Mes = df.Mes.map(dicc_meses,na_action="ignore")
+    df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
     
     cambiar_nombres = {"Centro de Costo_cod":"Código CCosto","Centro de Costo_dsc":"Nombre CCosto"}
     
@@ -689,31 +694,76 @@ def bar_cantidad_nulos(df):
     st.plotly_chart(fig,use_container_width=True) 
 
 def grafico_barras(df):
-
-    df.drop(columns=["Adj.","Fecha de Recepción","Funcionario Encargado_cod","Funcionario Encargado_dsc","Fecha de Asignación","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc","Solicitud de Compra","Observación","Cantidad de Personas Involucradas","Nº de Horas Hombre","Material Utilizado","Rut Responsable_dsc"],inplace=True)
     
-
+    df_filtrado(df)
+    
     st.title('Generador de Gráficos de Barras')
-    valores_columnas = ['Centro de Costo_dsc', 'Nº de Solicitud']
-   
-
-    x_col = st.selectbox('Selecciona la columna para el eje X', options=df.columns)
-    val_col = st.selectbox('Selecciona la columna para el eje X', options=valores_columnas)
-
- 
-    if st.button('Generar Gráfico de Barras'):
-       
-        # Contar los valores de la columna seleccionada y obtener los 10 más importantes
-        counts = df[x_col].value_counts().nlargest(10).reset_index()
-        counts.columns = [x_col, val_col]
-
-        # Generar el gráfico de líneas
-        st.markdown(f"## Gráfico de barras de {x_col}")
-        fig = px.bar(counts, x=x_col, y=val_col,  labels={'index': x_col}, title=f'Gráfico de barras de {x_col}')
+    
+    tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', options=['Personalizado', 'Histórico por servicio', 'Histórico por año'])
+    
+    valores_columnas = df.columns.tolist()
+    
+    if tipo_grafico == 'Personalizado':
+        x_col = st.selectbox('Selecciona la columna para el eje X', options=valores_columnas)
+        y_col = st.selectbox('Selecciona la columna para el eje Y', options=valores_columnas)
         
-        st.plotly_chart(fig)
-
-           
+        if st.button('Generar gráfico'):
+            counts = df[x_col].value_counts().nlargest(10).reset_index()
+            counts.columns = [x_col, y_col]
+            
+            st.markdown(f"## Gráfico de barras de {x_col}")
+            fig = px.bar(counts, x=x_col, y=y_col, labels={'index': x_col}, title=f'Gráfico de barras de {x_col}')
+            st.plotly_chart(fig)
+    
+    elif tipo_grafico == 'Histórico por servicio':
+        conteo_servicios = df.groupby(['Año', 'Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
+        
+        if st.button('Generar gráfico'):
+            fig = px.bar(conteo_servicios, x='Tipo de Servicio', y='Cantidad', color='Ejecutada', facet_col='Año',
+                         title='Cantidad de OT histórico por servicio',
+                         labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
+                         barmode='group')
+            
+            fig.update_layout(
+                title={
+                    'text': 'Cantidad de OT histórico por servicio',
+                    'y': 0.9,
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'
+                },
+                xaxis_title='Servicio',
+                yaxis_title='Cantidad de OT',
+                legend_title_text='Estado',
+                xaxis={'categoryorder': 'total descending'}
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+    
+    elif tipo_grafico == 'Histórico por año':
+        conteo_anual = df.groupby(['Año', 'Ejecutada']).size().reset_index(name='Cantidad')
+        
+        if st.button('Generar gráfico'):
+            fig = px.bar(conteo_anual, x='Año', y='Cantidad', color='Ejecutada',
+                         title='Cantidad de OT histórico por año',
+                         labels={'Año': 'Año', 'Cantidad': 'Cantidad de OT'},
+                         barmode='group')
+            
+            fig.update_layout(
+                title={
+                    'text': 'Cantidad de OT histórico por año',
+                    'y': 0.9,
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'
+                },
+                xaxis_title='Año',
+                yaxis_title='Cantidad de OT',
+                legend_title_text='Estado',
+                xaxis={'categoryorder': 'total descending'}
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
 def grafico_boxplot(df):
     df.drop(columns=["Adj.","Fecha de Recepción","Funcionario Encargado_cod","Funcionario Encargado_dsc","Fecha de Asignación","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc","Solicitud de Compra","Observación","Material Utilizado","Rut Responsable_dsc"],inplace=True)
@@ -795,7 +845,6 @@ def crear_grafico (tipo,df):
     if (len(tipo)>=0):
         
         if tipo == "Barras":
-            
             grafico_barras(df)
 
         if tipo == "Lineas":
@@ -880,7 +929,7 @@ def principal():
 
         elif opciones == "Generador de gráficos":
 
-            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel","Curva de Bell"])
+            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
@@ -898,7 +947,7 @@ def principal():
 
         elif opciones == "Generador de gráficos":
 
-            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel","Curva de Bell"])
+            tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)
         
 if 'logged_in' not in st.session_state:

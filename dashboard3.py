@@ -917,7 +917,7 @@ def principal():
     df = cargar_datos(bd_default)
     archivo_excel = bd_default
     if archivo_excel is None:
-        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de gráficos"])
+        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de Gráficos"])
         
         if opciones == "Dashboard Personalizado":
             dashboard_personalizado(df)
@@ -928,13 +928,13 @@ def principal():
         elif opciones == "Análisis Exploratorio":
             analisis_exp(df)
 
-        elif opciones == "Generador de gráficos":
+        elif opciones == "Generador de Gráficos":
 
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
-        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de gráficos"])
+        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de Gráficos"])
         df_dsl = cargar_datos(archivo_excel)
         
         if opciones == "Dashboard Personalizado":
@@ -946,7 +946,7 @@ def principal():
         elif opciones == "Análisis Exploratorio":
             analisis_exp(df_dsl)
 
-        elif opciones == "Generador de gráficos":
+        elif opciones == "Generador de Gráficos":
 
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de grafico", ["Barras","Lineas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)

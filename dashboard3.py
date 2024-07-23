@@ -698,7 +698,7 @@ def grafico_barras(df):
     
     st.title('Generador de Gráficos de Barras')
     
-    tipo_grafico = st.selectbox('Selecciona opción de gráfico', options=['Personalizado', 'Histórico por servicio', 'Histórico por año'])
+    tipo_grafico = st.selectbox('Selecciona el tipo de gráfico', options=['Personalizado', 'Histórico por servicio', 'Histórico por año'])
     
     valores_columnas = df.columns.tolist()
     
@@ -784,40 +784,39 @@ def grafico_boxplot(df):
     st.plotly_chart(fig)
 
 def grafico_lineas(df):
-
-    df_filtrado(df)
+    
+    df = df_filtrado(df)
     
     st.title('Generador de Gráficos de Líneas')
     
-    # Selección del año
-    años_disponibles = df['Año'].unique()
-    año_seleccionado = st.selectbox('Selecciona el año', options=años_disponibles)
-    
-    # Filtrar el DataFrame por el año seleccionado
-    df_año_seleccionado = df[df['Año'] == año_seleccionado]
-    
     # Selección del tipo de servicio
-    servicios_disponibles = df_año_seleccionado['Tipo de Servicio'].unique()
+    servicios_disponibles = df['Tipo de Servicio'].unique()
     servicio_seleccionado = st.selectbox('Selecciona el tipo de servicio', options=servicios_disponibles)
     
     # Filtrar el DataFrame por el tipo de servicio seleccionado
-    df_servicio_seleccionado = df_año_seleccionado[df_año_seleccionado['Tipo de Servicio'] == servicio_seleccionado]
+    df_servicio_seleccionado = df[df['Tipo de Servicio'] == servicio_seleccionado]
     
-    # Asegurar que los nombres de los meses están normalizados
-    df_servicio_seleccionado['Mes-Año'] = df_servicio_seleccionado['Fecha'].dt.to_period('M').astype(str)
+    # Contar las órdenes por mes y año
+    conteo_mensual = df_servicio_seleccionado.groupby(['Año', 'Mes']).size().reset_index(name='Cantidad')
     
-    # Contar las órdenes por mes
-    conteo_mensual = df_servicio_seleccionado.groupby('Mes-Año').size().reset_index(name='Cantidad')
+    # Ordenar los meses según su orden en el año
+    meses_ordenados = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    conteo_mensual['Mes'] = pd.Categorical(conteo_mensual['Mes'], categories=meses_ordenados, ordered=True)
+    
+    # Crear una columna para ordenar por año y mes
+    conteo_mensual['Año-Mes'] = conteo_mensual.apply(lambda row: f"{row['Año']}-{meses_ordenados.index(row['Mes']) + 1:02d}", axis=1)
+    conteo_mensual = conteo_mensual.sort_values(by=['Año-Mes'])
     
     # Crear el gráfico de líneas
-    fig = px.line(conteo_mensual, x='Mes-Año', y='Cantidad', title=f'Cantidad de OT por Mes en {año_seleccionado} para {servicio_seleccionado}',
-                  labels={'Mes-Año': 'Mes', 'Cantidad': 'Cantidad de OT'}, markers=True)
+    fig = px.line(conteo_mensual, x='Mes', y='Cantidad', color='Año',
+                  title=f'Cantidad de OT histórico por Mes para el servicio de {servicio_seleccionado}',
+                  labels={'Mes': 'Mes', 'Cantidad': 'Cantidad de OT'}, markers=True)
     
     fig.update_layout(
         xaxis_title='Mes',
         yaxis_title='Cantidad de OT',
         title={
-            'text': f'Cantidad de OT por Mes en {año_seleccionado} para {servicio_seleccionado}',
+            'text': f'Cantidad de OT histórico por Mes para el servicio de {servicio_seleccionado}',
             'y': 0.9,
             'x': 0.5,
             'xanchor': 'center',
@@ -939,12 +938,12 @@ def principal():
     df = cargar_datos(bd_default)
     archivo_excel = bd_default
     if archivo_excel is None:
-        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de Gráficos"])
+        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos"])
         
-        if opciones == "Dashboard Personalizado":
+        if opciones == "Gráficos Personalizados":
             dashboard_personalizado(df)
 
-        elif opciones == "Dashboard Anual":
+        elif opciones == "Panel Principal":
             dashboard_anual(df)
 
         elif opciones == "Análisis Exploratorio":
@@ -956,13 +955,13 @@ def principal():
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
-        opciones = st.sidebar.radio("Tipo de análisis", options=["Dashboard Anual","Dashboard Personalizado","Generador de Gráficos"])
+        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos"])
         df_dsl = cargar_datos(archivo_excel)
         
-        if opciones == "Dashboard Personalizado":
+        if opciones == "Gráficos Personalizados":
             dashboard_personalizado(df_dsl)
 
-        elif opciones == "Dashboard Anual":
+        elif opciones == "Panel Principal":
             dashboard_anual(df_dsl)
 
         elif opciones == "Análisis Exploratorio":

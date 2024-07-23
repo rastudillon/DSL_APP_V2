@@ -785,25 +785,47 @@ def grafico_boxplot(df):
 
 def grafico_lineas(df):
 
-    df.drop(columns=["Adj.","Fecha de Recepción","Funcionario Encargado_cod","Funcionario Encargado_dsc","Fecha de Asignación","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc","Solicitud de Compra","Observación","Cantidad de Personas Involucradas","Nº de Horas Hombre","Material Utilizado","Rut Responsable_dsc"],inplace=True)
+    df_filtrado(df)
     
-
     st.title('Generador de Gráficos de Líneas')
-
-    valores_columnas = ['Centro de Costo_dsc', 'Nº de Solicitud']
-   
-
-    x_col = st.selectbox('Selecciona la columna para el eje X', options=df.columns)
-    val_col = st.selectbox('Selecciona la columna para el eje X', options=valores_columnas)
-
-    # Contar los valores de la columna seleccionada y obtener los 10 más importantes
-    counts = df[x_col].value_counts().nlargest(10).reset_index()
-    counts.columns = [x_col, val_col]
-
-    # Generar el gráfico de líneas
-    fig = px.line(counts, x=x_col, y=val_col, title='Gráfico de Líneas')
-    st.plotly_chart(fig)
-
+    
+    # Selección del año
+    años_disponibles = df['Año'].unique()
+    año_seleccionado = st.selectbox('Selecciona el año', options=años_disponibles)
+    
+    # Filtrar el DataFrame por el año seleccionado
+    df_año_seleccionado = df[df['Año'] == año_seleccionado]
+    
+    # Selección del tipo de servicio
+    servicios_disponibles = df_año_seleccionado['Tipo de Servicio'].unique()
+    servicio_seleccionado = st.selectbox('Selecciona el tipo de servicio', options=servicios_disponibles)
+    
+    # Filtrar el DataFrame por el tipo de servicio seleccionado
+    df_servicio_seleccionado = df_año_seleccionado[df_año_seleccionado['Tipo de Servicio'] == servicio_seleccionado]
+    
+    # Asegurar que los nombres de los meses están normalizados
+    df_servicio_seleccionado['Mes-Año'] = df_servicio_seleccionado['Fecha'].dt.to_period('M').astype(str)
+    
+    # Contar las órdenes por mes
+    conteo_mensual = df_servicio_seleccionado.groupby('Mes-Año').size().reset_index(name='Cantidad')
+    
+    # Crear el gráfico de líneas
+    fig = px.line(conteo_mensual, x='Mes-Año', y='Cantidad', title=f'Cantidad de OT por Mes en {año_seleccionado} para {servicio_seleccionado}',
+                  labels={'Mes-Año': 'Mes', 'Cantidad': 'Cantidad de OT'}, markers=True)
+    
+    fig.update_layout(
+        xaxis_title='Mes',
+        yaxis_title='Cantidad de OT',
+        title={
+            'text': f'Cantidad de OT por Mes en {año_seleccionado} para {servicio_seleccionado}',
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        }
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
 def grafico_histograma(df):
     st.title('Generador de Gráficos de Histograma')

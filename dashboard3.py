@@ -929,7 +929,44 @@ def analisis_exp(df):
         distribucion_col_categoricas(df)
 
 def graficos_comparativos(df):
-    pass
+    df = df_filtrado(df)
+
+    st.title("Gráficos Comparativos de Tiempos de Ejecución")
+
+    servicios = st.sidebar.multiselect("Selecciona servicios", df["Tipo de Servicio"].unique())
+    años      = st.sidebar.multiselect("Selecciona años",      df["Año"].unique())
+    meses     = st.sidebar.multiselect("Selecciona meses",     df["Mes"].unique())
+
+    # Filtrar
+    df_f = df[
+        (df["Ejecutada"] == "Si") &
+        (df["Tipo de Servicio"].isin(servicios)) &
+        (df["Año"].isin(años)) &
+        (df["Mes"].isin(meses))
+    ].copy()
+
+    # Calcular diferencia en días
+    df_f["Días de Ejecución"] = (df_f["Fecha de Término"] - df_f["Fecha"]).dt.days
+
+    if df_f.empty:
+        st.warning("No hay datos para esos filtros.")
+        return
+
+    # Boxplot comparativo
+    fig = px.box(
+        df_f,
+        x="Tipo de Servicio",
+        y="Días de Ejecución",
+        color="Año",
+        points="all",
+        title="Distribución de días de ejecución por Servicio y Año",
+        labels={
+            "Tipo de Servicio": "Servicio",
+            "Días de Ejecución": "Días"
+        }
+    )
+    fig.update_layout(xaxis_title="Servicio", yaxis_title="Días de Ejecución")
+    st.plotly_chart(fig, use_container_width=True)
 
 def principal():
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'

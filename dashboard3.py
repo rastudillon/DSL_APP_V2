@@ -928,6 +928,9 @@ def analisis_exp(df):
     with c2:
         distribucion_col_categoricas(df)
 
+def graficos_comparativos(df):
+    pass
+
 def principal():
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
     title = "Dashboard para análisis de órdenes de trabajo de la DSL"
@@ -955,7 +958,7 @@ def principal():
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
-        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos"])
+        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos","Gráficos Comparativos"])
         df_dsl = cargar_datos(archivo_excel)
         
         if opciones == "Gráficos Personalizados":
@@ -968,10 +971,11 @@ def principal():
             analisis_exp(df_dsl)
 
         elif opciones == "Generador de Gráficos":
-
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de gráfico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)
-        
+        elif opciones == "Gráficos Comparativos":
+            graficos_comparativos()
+            
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 

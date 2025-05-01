@@ -974,7 +974,7 @@ def principal():
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de gráfico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)
         elif opciones == "Gráficos Comparativos":
-            graficos_comparativos()
+            graficos_comparativos(df_dsl)
             
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False

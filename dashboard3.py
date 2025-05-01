@@ -21,7 +21,7 @@ usuarios_permitidos = {
 st.set_page_config(layout="wide", page_title="Dashboard DSL", page_icon=":chart_with_upwards_trend:", initial_sidebar_state="collapsed")
 st.sidebar.image(logo,width=tamaño_logo[0])
 
-@st.cache_data #(experimental_allow_widgets=True)
+#@st.cache_data (experimental_allow_widgets=True)
 
 def mostrar_login():
     st.title("Login")

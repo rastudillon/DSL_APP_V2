@@ -31,7 +31,7 @@ def mostrar_login():
         if username in usuarios_permitidos and usuarios_permitidos[username] == password:
             st.session_state['logged_in'] = True
             st.session_state['username'] = username
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Nombre de usuario o contraseña incorrectos")
 

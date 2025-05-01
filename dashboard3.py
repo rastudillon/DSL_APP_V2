@@ -931,41 +931,68 @@ def analisis_exp(df):
 def graficos_comparativos(df):
     df = df_filtrado(df)
 
-    st.title("Gráficos Comparativos de Tiempos de Ejecución")
+    st.title("Gráficos Comparativos de Tiempo de Ejecución")
 
-    servicios = st.sidebar.multiselect("Selecciona servicios", df["Tipo de Servicio"].unique())
-    años      = st.sidebar.multiselect("Selecciona años",      df["Año"].unique())
-    meses     = st.sidebar.multiselect("Selecciona meses",     df["Mes"].unique())
+    # — Selección del servicio y años —
+    servicio = st.sidebar.selectbox(
+        "Selecciona el servicio",
+        df["Tipo de Servicio"].unique()
+    )
+    años = st.sidebar.multiselect(
+        "Selecciona año(s)",
+        sorted(df["Año"].unique().tolist())
+    )
 
-    # Filtrar
+    # Filtrar solo ejecutadas y por servicio/años
     df_f = df[
         (df["Ejecutada"] == "Si") &
-        (df["Tipo de Servicio"].isin(servicios)) &
-        (df["Año"].isin(años)) &
-        (df["Mes"].isin(meses))
+        (df["Tipo de Servicio"] == servicio) &
+        (df["Año"].isin(años))
     ].copy()
-
-    # Calcular diferencia en días
-    df_f["Días de Ejecución"] = (df_f["Fecha de Término"] - df_f["Fecha"]).dt.days
 
     if df_f.empty:
         st.warning("No hay datos para esos filtros.")
         return
 
-    # Boxplot comparativo
-    fig = px.box(
-        df_f,
-        x="Tipo de Servicio",
-        y="Días de Ejecución",
-        color="Año",
-        points="all",
-        title="Distribución de días de ejecución por Servicio y Año",
-        labels={
-            "Tipo de Servicio": "Servicio",
-            "Días de Ejecución": "Días"
-        }
+    # Calcular días de ejecución
+    df_f["Días de Ejecución"] = (df_f["Fecha de Término"] - df_f["Fecha"]).dt.days
+
+    # Mapear meses y ordenar
+    dicc_meses = {
+        1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",
+        5:"Mayo",6:"Junio",7:"Julio",8:"Agosto",
+        9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"
+    }
+    df_f["Mes"] = df_f["Fecha"].dt.month.map(dicc_meses)
+    meses_ordenados = list(dicc_meses.values())
+
+    # Promedio de días por Año y Mes
+    prom = (
+        df_f
+        .groupby(["Año", "Mes"])
+        ["Días de Ejecución"]
+        .mean()
+        .reset_index(name="Promedio Días")
     )
-    fig.update_layout(xaxis_title="Servicio", yaxis_title="Días de Ejecución")
+    # Categórico para ordenar X
+    prom["Mes"] = pd.Categorical(prom["Mes"], categories=meses_ordenados, ordered=True)
+    prom = prom.sort_values(["Año", "Mes"])
+
+    # Gráfico de líneas
+    fig = px.line(
+        prom,
+        x="Mes",
+        y="Promedio Días",
+        color="Año",
+        markers=True,
+        title=f"Promedio de días de ejecución por mes ({servicio})",
+        labels={"Promedio Días": "Días promedio", "Mes": "Mes"}
+    )
+    fig.update_layout(
+        xaxis_title="Mes",
+        yaxis_title="Días promedio",
+        xaxis=dict(categoryorder="array", categoryarray=meses_ordenados)
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 def principal():

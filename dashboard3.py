@@ -934,7 +934,7 @@ def principal():
     st.sidebar.write(f'<p style="{size_title}">{title}</p>',unsafe_allow_html=True)
     #st.sidebar.write("Seleccione una base de datos")
     #archivo_excel = st.sidebar.file_uploader("Elija archivo Excel",type=["xlsx"])
-    bd_default = "ot_2019_2024_15_07_2024.xlsx"
+    bd_default = "ot_2019_2025_mayo.xlsx"
     df = cargar_datos(bd_default)
     archivo_excel = bd_default
     if archivo_excel is None:

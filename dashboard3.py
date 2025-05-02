@@ -624,16 +624,16 @@ def grafico_tiempo_ejecucion(df):
         "Selecciona el servicio a comparar",
         options=sorted(df["Tipo de Servicio"].unique())
     )
-    df = df[df["Tipo de Servicio"] == servicio]
+    df_serv = df[df["Tipo de Servicio"] == servicio]
 
-    # 2) Filtrar sólo las OT ejecutadas
-    df_ej = df[df['Ejecutada'] == "Si"].copy()
+    # 2) Filtrar sólo las OT ejecutadas y calcular días de ejecución
+    df_ej = df_serv[df_serv['Ejecutada'] == "Si"].copy()
     df_ej['Fecha'] = pd.to_datetime(df_ej['Fecha'], errors='coerce')
     df_ej['Fecha de Término'] = pd.to_datetime(df_ej['Fecha de Término'], errors='coerce')
     df_ej['DiasEjec'] = (df_ej['Fecha de Término'] - df_ej['Fecha']).dt.days
     df_ej = df_ej[df_ej['DiasEjec'] >= 0]
 
-    # 3) Extraer año y mes
+    # 3) Extraer año y mes numérico
     df_ej['Año']    = df_ej['Fecha'].dt.year
     df_ej['MesNum'] = df_ej['Fecha'].dt.month
     dicc_meses = {
@@ -662,22 +662,26 @@ def grafico_tiempo_ejecucion(df):
     fig1.update_layout(xaxis_title='Mes', yaxis_title='Días promedio de ejecución')
     st.plotly_chart(fig1, use_container_width=True)
 
-    # 6) Ahora el conteo de OT ejecutadas y pendientes por mes
+    # 6) Conteo de OT ejecutadas y pendientes por mes
+    df_cont = df_serv.copy()
+    df_cont['MesNum'] = pd.to_datetime(df_cont['Fecha']).dt.month
+    df_cont['Mes']    = df_cont['MesNum'].map(dicc_meses)
+
     conteo = (
-        df[df["Tipo de Servicio"] == servicio]
+        df_cont
         .groupby(['MesNum','Mes','Ejecutada'])
         .size()
         .reset_index(name='Cantidad')
     )
-    # filtrar meses existentes y ordenar
+    # ordenar y categorizar meses
     conteo['Mes'] = pd.Categorical(conteo['Mes'], categories=meses_ordenados, ordered=True)
-    conteo = conteo.sort_values('Mes')
+    conteo = conteo.sort_values(['MesNum','Ejecutada'])
 
     fig2 = px.bar(
         conteo,
         x='Mes', y='Cantidad', color='Ejecutada',
         barmode='group',
-        title=f"Conteo de OT por Estado en «{servicio}»",
+        title=f"Conteo de OT por Estado para «{servicio}»",
         labels={'Cantidad':'Número de OT','Mes':'Mes','Ejecutada':'Estado'}
     )
     fig2.update_layout(xaxis_title='Mes', yaxis_title='Cantidad de OT')

@@ -615,46 +615,57 @@ def dashboard_personalizado(df):
         graf_pie_campus_dashboard(filtro)
 
 def grafico_tiempo_ejecucion(df):
-    # Asegúrate de que df ya pasó por df_filtrado(df)
-    # Filtrar sólo las OT ejecutadas
-    df_ej = df[df['Ejecutada']=="Si"].copy()
+    # Asegurarnos de que df ya pasó por df_filtrado(df)
+    df = df_filtrado(df)
 
-    # Convertir a datetime
+    # 1) Selector de servicio
+    servicio = st.selectbox(
+        "Selecciona el servicio a comparar",
+        options=sorted(df["Tipo de Servicio"].unique())
+    )
+    df = df[df["Tipo de Servicio"] == servicio]
+
+    # 2) Filtrar sólo las OT ejecutadas
+    df_ej = df[df['Ejecutada'] == "Si"].copy()
     df_ej['Fecha'] = pd.to_datetime(df_ej['Fecha'], errors='coerce')
     df_ej['Fecha de Término'] = pd.to_datetime(df_ej['Fecha de Término'], errors='coerce')
 
-    # Calcular diferencia en días
+    # 3) Calcular días de ejecución
     df_ej['DiasEjec'] = (df_ej['Fecha de Término'] - df_ej['Fecha']).dt.days
 
-    # Extraer año y mes numérico
-    df_ej['Año']  = df_ej['Fecha'].dt.year
-    df_ej['MesNum'] = df_ej['Fecha'].dt.month
+    # 4) Extraer año y mes numérico
+    df_ej['Año']     = df_ej['Fecha'].dt.year
+    df_ej['MesNum']  = df_ej['Fecha'].dt.month
 
-    # Mapear a nombre de mes (ya lo haces en df_filtrado, pero por si acaso):
+    # 5) Mapear nombres de mes en español
     dicc_meses = {
-        1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",5:"Mayo",6:"Junio",
-        7:"Julio",8:"Agosto",9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"
+        1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+        5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+        9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
     }
     df_ej['Mes'] = df_ej['MesNum'].map(dicc_meses)
 
-    # Agrupar y calcular promedio
-    grp = (df_ej
-           .groupby(['Año','MesNum','Mes'])['DiasEjec']
-           .mean()
-           .reset_index(name='PromedioDias'))
+    # 6) Agrupar y calcular promedio de días
+    grp = (
+        df_ej
+        .groupby(['Año', 'MesNum', 'Mes'])['DiasEjec']
+        .mean()
+        .reset_index(name='PromedioDias')
+    )
 
-    # Categórico para ordenar meses
+    # 7) Asegurar orden cronológico de meses
     meses_ordenados = list(dicc_meses.values())
     grp['Mes'] = pd.Categorical(grp['Mes'], categories=meses_ordenados, ordered=True)
 
-    # Trazar
+    # 8) Dibujar línea
     fig = px.line(
         grp.sort_values(['Año','MesNum']),
         x='Mes', y='PromedioDias', color='Año', markers=True,
-        title="Promedio de días de ejecución por Mes y Año",
-        labels={'PromedioDias':'Días promedio','Mes':'Mes'}
+        title=f"Promedio de días de ejecución para «{servicio}»",
+        labels={'PromedioDias': 'Días promedio', 'Mes': 'Mes'}
     )
     fig.update_layout(xaxis_title='Mes', yaxis_title='Días promedio de ejecución')
+
     st.plotly_chart(fig, use_container_width=True)
 
 def df_filtrado (df):

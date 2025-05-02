@@ -709,7 +709,7 @@ def df_filtrado (df):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
     # Rellena NaN con ceros (sin argumentos extras)
-    #df.fillna(0, inplace=True)
+    df["Fecha de Término"].fillna(0, inplace=True)
     
     df["Ejecutada"] = df["Fecha de Término"].apply(lambda x: "No" if x == 0 else "Si")
     dicc_meses = {

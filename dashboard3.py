@@ -928,73 +928,6 @@ def analisis_exp(df):
     with c2:
         distribucion_col_categoricas(df)
 
-def graficos_comparativos(df):
-    df = df_filtrado(df)
-
-    st.title("Gráficos Comparativos de Tiempo de Ejecución")
-
-    # — Selección del servicio y años —
-    servicio = st.sidebar.selectbox(
-        "Selecciona el servicio",
-        df["Tipo de Servicio"].unique()
-    )
-    años = st.sidebar.multiselect(
-        "Selecciona año(s)",
-        sorted(df["Año"].unique().tolist())
-    )
-
-    # Filtrar solo ejecutadas y por servicio/años
-    df_f = df[
-        (df["Ejecutada"] == "Si") &
-        (df["Tipo de Servicio"] == servicio) &
-        (df["Año"].isin(años))
-    ].copy()
-
-    if df_f.empty:
-        st.warning("No hay datos para esos filtros.")
-        return
-
-    # Calcular días de ejecución
-    df_f["Días de Ejecución"] = (df_f["Fecha de Término"] - df_f["Fecha"]).dt.days
-
-    # Mapear meses y ordenar
-    dicc_meses = {
-        1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",
-        5:"Mayo",6:"Junio",7:"Julio",8:"Agosto",
-        9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"
-    }
-    df_f["Mes"] = df_f["Fecha"].dt.month.map(dicc_meses)
-    meses_ordenados = list(dicc_meses.values())
-
-    # Promedio de días por Año y Mes
-    prom = (
-        df_f
-        .groupby(["Año", "Mes"])
-        ["Días de Ejecución"]
-        .mean()
-        .reset_index(name="Promedio Días")
-    )
-    # Categórico para ordenar X
-    prom["Mes"] = pd.Categorical(prom["Mes"], categories=meses_ordenados, ordered=True)
-    prom = prom.sort_values(["Año", "Mes"])
-
-    # Gráfico de líneas
-    fig = px.line(
-        prom,
-        x="Mes",
-        y="Promedio Días",
-        color="Año",
-        markers=True,
-        title=f"Promedio de días de ejecución por mes ({servicio})",
-        labels={"Promedio Días": "Días promedio", "Mes": "Mes"}
-    )
-    fig.update_layout(
-        xaxis_title="Mes",
-        yaxis_title="Días promedio",
-        xaxis=dict(categoryorder="array", categoryarray=meses_ordenados)
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
 def principal():
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
     title = "Dashboard para análisis de órdenes de trabajo de la DSL"
@@ -1022,7 +955,7 @@ def principal():
             crear_grafico(tipo_grafico,df)
 
     if archivo_excel is not None:
-        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos","Gráficos Comparativos"])
+        opciones = st.sidebar.radio(" ", options=["Panel Principal","Gráficos Personalizados","Generador de Gráficos"])
         df_dsl = cargar_datos(archivo_excel)
         
         if opciones == "Gráficos Personalizados":
@@ -1037,8 +970,6 @@ def principal():
         elif opciones == "Generador de Gráficos":
             tipo_grafico = st.sidebar.selectbox("Seleccione el tipo de gráfico", ["Barras","Líneas","BoxPlot","Histograma","Pastel"])
             crear_grafico(tipo_grafico,df_dsl)
-        elif opciones == "Gráficos Comparativos":
-            graficos_comparativos(df_dsl)
             
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False

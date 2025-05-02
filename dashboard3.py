@@ -633,6 +633,9 @@ def grafico_tiempo_ejecucion(df):
     # 3) Calcular días de ejecución
     df_ej['DiasEjec'] = (df_ej['Fecha de Término'] - df_ej['Fecha']).dt.days
 
+    # filtra los negativos
+    df_ej = df_ej[df_ej['DiasEjec'] >= 0]
+
     # 4) Extraer año y mes numérico
     df_ej['Año']     = df_ej['Fecha'].dt.year
     df_ej['MesNum']  = df_ej['Fecha'].dt.month

@@ -496,29 +496,44 @@ def calcular_promedio_dias_ejec_serv(df):
     return st.write(metric_html, unsafe_allow_html=True)
 
 def calcular_dias_no_ejecutadas(df, año):
-    df = df[(df['Año'] == año)]
-
+    # Asegurarnos de que la fecha de inicio es datetime
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
+    # Fecha de hoy para las no ejecutadas
     fecha_actual = pd.to_datetime(datetime.datetime.now().date())
 
-    df['Diferencia en Días No Ejecutadas'] = (fecha_actual - df['Fecha']).dt.days
+    # Diferencia en días desde la solicitud hasta hoy
+    df['DiasNoEjec'] = (fecha_actual - df['Fecha']).dt.days
 
-    df_no_ejecutadas = df[df['Ejecutada'] == 'No']
+    # Filtrar sólo las no ejecutadas
+    df_no = df[df['Ejecutada'] == 'No']
 
-    promedio_dias_no_ejecutadas = df_no_ejecutadas['Diferencia en Días No Ejecutadas'].mean()
+    # Si no hay ninguna, evitar NaN
+    if df_no.empty:
+        promedio = 0
+    else:
+        promedio = df_no['DiasNoEjec'].mean()
+        if pd.isna(promedio):
+            promedio = 0
 
+    # Preparar estilos
     color = 'color: #808B96; font-size: 50px; text-align: center'
-    div_style = "background: #FFFFFF;padding:1px;border-radius:5px;text-align:center;"
-    title_style = "font-size:13px;font-weight:lighter;color:#000000;margin-bottom:10px;"
+    div_style = "background: #FFFFFF; padding:1px; border-radius:5px; text-align:center;"
+    title_style = "font-size:13px; font-weight:lighter; color:#000000; margin-bottom:10px;"
     titulo = "Promedio de días OT No ejecutadas"
 
-    metric_html = f"<div style= '{div_style}'>"\
-        f"<span style= '{title_style}'>{titulo}</span></br>"\
-        f"<span style= '{color}'>{round(promedio_dias_no_ejecutadas)}</span></div>"
-    
-    return st.write(metric_html,unsafe_allow_html=True)
+    # Round seguro sobre un int
+    valor = round(promedio)
+
+    metric_html = (
+        f"<div style='{div_style}'>"
+        f"<span style='{title_style}'>{titulo}</span></br>"
+        f"<span style='{color}'>{valor}</span>"
+        f"</div>"
+    )
+
+    return st.write(metric_html, unsafe_allow_html=True)
 
 def dashboard_anual(df):
     

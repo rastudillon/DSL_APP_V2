@@ -935,7 +935,7 @@ def grafico_pastel(df):
 
 def crear_grafico (tipo,df):
 
-    (0,inplace=True)
+    df.fillna(0,inplace=True)
 
     if (len(tipo)>=0):
         

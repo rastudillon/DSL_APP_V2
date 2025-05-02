@@ -444,6 +444,7 @@ def calcular_promedio_dias(df, año):
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha de Término']):
+        df['Fecha de Término'] = df['Fecha de Término'].replace(0, pd.NaT)
         df['Fecha de Término'] = pd.to_datetime(df['Fecha de Término'], errors='coerce')
 
     df['Diferencia en Días'] = (df['Fecha de Término'] - df['Fecha']).dt.days
@@ -468,6 +469,7 @@ def calcular_promedio_dias_ejec_serv(df):
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha de Término']):
+        df['Fecha de Término'] = df['Fecha de Término'].replace(0, pd.NaT)
         df['Fecha de Término'] = pd.to_datetime(df['Fecha de Término'], errors='coerce')
 
     # Calcular la diferencia en días
@@ -628,6 +630,7 @@ def grafico_tiempo_ejecucion(df):
     # 2) Filtrar sólo las OT ejecutadas
     df_ej = df[df['Ejecutada'] == "Si"].copy()
     df_ej['Fecha'] = pd.to_datetime(df_ej['Fecha'], errors='coerce')
+    df_ej['Fecha de Término'] = df['Fecha de Término'].replace(0, pd.NaT)
     df_ej['Fecha de Término'] = pd.to_datetime(df_ej['Fecha de Término'], errors='coerce')
 
     # 3) Calcular días de ejecución

@@ -626,14 +626,14 @@ def grafico_tiempo_ejecucion(df):
     )
     df_serv = df[df["Tipo de Servicio"] == servicio]
 
-    # 2) Filtrar sólo las OT ejecutadas y calcular días de ejecución
+    # 2) Calcular sólo OT ejecutadas y días de ejecución
     df_ej = df_serv[df_serv['Ejecutada'] == "Si"].copy()
     df_ej['Fecha'] = pd.to_datetime(df_ej['Fecha'], errors='coerce')
     df_ej['Fecha de Término'] = pd.to_datetime(df_ej['Fecha de Término'], errors='coerce')
     df_ej['DiasEjec'] = (df_ej['Fecha de Término'] - df_ej['Fecha']).dt.days
     df_ej = df_ej[df_ej['DiasEjec'] >= 0]
 
-    # 3) Extraer año y mes numérico
+    # 3) Extraer Año y MesNum, mapear Mes
     df_ej['Año']    = df_ej['Fecha'].dt.year
     df_ej['MesNum'] = df_ej['Fecha'].dt.month
     dicc_meses = {
@@ -642,50 +642,40 @@ def grafico_tiempo_ejecucion(df):
     }
     df_ej['Mes'] = df_ej['MesNum'].map(dicc_meses)
 
-    # 4) Promedio de días por año y mes
+    # 4) Agrupar para obtener promedio de días y conteo de ejecuciones
     grp = (
         df_ej
-        .groupby(['Año','MesNum','Mes'])['DiasEjec']
-        .mean()
-        .reset_index(name='PromedioDias')
+        .groupby(['Año','MesNum','Mes'])
+        .agg(
+            PromedioDias=('DiasEjec','mean'),
+            TotalEjec=('DiasEjec','size')
+        )
+        .reset_index()
     )
+
+    # 5) Ordenar cronológicamente los meses
     meses_ordenados = list(dicc_meses.values())
     grp['Mes'] = pd.Categorical(grp['Mes'], categories=meses_ordenados, ordered=True)
+    grp = grp.sort_values(['Año','MesNum'])
 
-    # 5) Línea de días promedio
-    fig1 = px.line(
-        grp.sort_values(['Año','MesNum']),
-        x='Mes', y='PromedioDias', color='Año', markers=True,
+    # 6) Trazar línea con hover_data
+    fig = px.line(
+        grp,
+        x='Mes',
+        y='PromedioDias',
+        color='Año',
+        markers=True,
         title=f"Promedio de días de ejecución para «{servicio}»",
-        labels={'PromedioDias':'Días promedio','Mes':'Mes'}
+        labels={'PromedioDias':'Días promedio','Mes':'Mes'},
+        hover_data={'TotalEjec':True, 'PromedioDias':':.1f'}
     )
-    fig1.update_layout(xaxis_title='Mes', yaxis_title='Días promedio de ejecución')
-    st.plotly_chart(fig1, use_container_width=True)
 
-    # 6) Conteo de OT ejecutadas y pendientes por mes
-    df_cont = df_serv.copy()
-    df_cont['MesNum'] = pd.to_datetime(df_cont['Fecha']).dt.month
-    df_cont['Mes']    = df_cont['MesNum'].map(dicc_meses)
-
-    conteo = (
-        df_cont
-        .groupby(['MesNum','Mes','Ejecutada'])
-        .size()
-        .reset_index(name='Cantidad')
+    fig.update_layout(
+        xaxis_title='Mes',
+        yaxis_title='Días promedio de ejecución'
     )
-    # ordenar y categorizar meses
-    conteo['Mes'] = pd.Categorical(conteo['Mes'], categories=meses_ordenados, ordered=True)
-    conteo = conteo.sort_values(['MesNum','Ejecutada'])
 
-    fig2 = px.bar(
-        conteo,
-        x='Mes', y='Cantidad', color='Ejecutada',
-        barmode='group',
-        title=f"Conteo de OT por Estado para «{servicio}»",
-        labels={'Cantidad':'Número de OT','Mes':'Mes','Ejecutada':'Estado'}
-    )
-    fig2.update_layout(xaxis_title='Mes', yaxis_title='Cantidad de OT')
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
     
 def df_filtrado (df):
     cols_a_quitar = [

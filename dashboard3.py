@@ -586,7 +586,7 @@ def dashboard_anual(df):
 
     c1,c2 = st.columns([1,3])
     with c1:
-        mostrar_info_mes_actual(df, año_num, mes_num)
+        mostrar_info_mes_actual(df, año_num, último_mes_nombre)
     with c2:
         grafico_barras_mensuales(df, año_num)
 

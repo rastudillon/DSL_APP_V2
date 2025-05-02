@@ -691,6 +691,7 @@ def df_filtrado (df):
     df.fillna(0, inplace=True)
 
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
+        df['Fecha'] = df['Fecha'].replace(0, pd.NaT)
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
     df["Ejecutada"] = df["Fecha de Término"].apply(lambda x: "No" if x == 0 else "Si")

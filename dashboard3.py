@@ -539,8 +539,23 @@ def dashboard_anual(df):
     
     df_filtrado(df)
 
-    último_año = df['Fecha'].dt.year.max()
-    último_mes = df.Mes.unique().tolist()[0]
+    #último_año = df['Fecha'].dt.year.max()
+    #último_mes = df.Mes.unique().tolist()[0]
+
+    # 2) Saca el último periodo año-mes
+    ultimo_periodo = df['Fecha'].dt.to_period('M').max()
+    #    → te devuelve algo como Period('2025-04', 'M')
+
+    # 3) Extrae mes y año
+    mes_num = int(ultimo_periodo.month)
+    año_num = int(ultimo_periodo.year)
+
+    # 4) Mapea al nombre en español
+    dicc_meses = {
+    1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",5:"Mayo",6:"Junio",
+    7:"Julio",8:"Agosto",9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"
+    }
+    último_mes_nombre = dicc_meses[mes_num]
     
     size_title = 'font-size: 34px; text-align: center; color: #000000; font-weight: lighter'
     title = f"Indicadores Dirección de Servicios y Logística Año {año_actual}"
@@ -548,20 +563,20 @@ def dashboard_anual(df):
   
     c1,c2,c3,c4,c5,c6 = st.columns(6)
     with c1:
-        porc_pend_dashboard_anual(df, último_año)
+        porc_pend_dashboard_anual(df, año_num)
 
     with c2:
-        porc_ejec_dashboard_anual(df, último_año)
+        porc_ejec_dashboard_anual(df, año_num)
 
     with c3:
-        cant_pend_dashboard_anual(df, último_año)
+        cant_pend_dashboard_anual(df, año_num)
 
     with c4:
-        cant_ejec_dashboard_anual(df, último_año)
+        cant_ejec_dashboard_anual(df, año_num)
     with c5:
-        calcular_promedio_dias(df, último_año)
+        calcular_promedio_dias(df, año_num)
     with c6:
-        calcular_dias_no_ejecutadas(df,último_año)
+        calcular_dias_no_ejecutadas(df, año_num)
 
     st.write('<br>', unsafe_allow_html=True)
 
@@ -571,12 +586,12 @@ def dashboard_anual(df):
 
     c1,c2 = st.columns([1,3])
     with c1:
-        mostrar_info_mes_actual(df, último_año, último_mes)
+        mostrar_info_mes_actual(df, año_num, mes_num)
     with c2:
-        grafico_barras_mensuales(df, último_año)
+        grafico_barras_mensuales(df, año_num)
 
     with st.container():
-        grafico_barras_servicios(df, último_año)
+        grafico_barras_servicios(df, año_num)
 
 def dashboard_personalizado(df):
     df_filtrado(df)

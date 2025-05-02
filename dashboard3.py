@@ -563,6 +563,12 @@ def dashboard_anual(df):
 
 def dashboard_personalizado(df):
     df_filtrado(df)
+
+    modo = st.selectbox("¿Qué quieres ver?", ["Indicadores", "Comparar tiempo de ejecución"])
+    if modo == "Comparar tiempo de ejecución":
+        grafico_tiempo_ejecucion(df)
+        return
+        
     filtro, titulo = filtros_dashboard(df)
 
     size_title = 'font-size: 24px; text-align: center; color: #000000; font-weight: lighter'
@@ -607,6 +613,49 @@ def dashboard_personalizado(df):
         graf_dias_dashboard(filtro)
     with c2:
         graf_pie_campus_dashboard(filtro)
+
+def grafico_tiempo_ejecucion(df):
+    # Asegúrate de que df ya pasó por df_filtrado(df)
+    # Filtrar sólo las OT ejecutadas
+    df_ej = df[df['Ejecutada']=="Si"].copy()
+
+    # Convertir a datetime
+    df_ej['Fecha'] = pd.to_datetime(df_ej['Fecha'], errors='coerce')
+    df_ej['Fecha de Término'] = pd.to_datetime(df_ej['Fecha de Término'], errors='coerce')
+
+    # Calcular diferencia en días
+    df_ej['DiasEjec'] = (df_ej['Fecha de Término'] - df_ej['Fecha']).dt.days
+
+    # Extraer año y mes numérico
+    df_ej['Año']  = df_ej['Fecha'].dt.year
+    df_ej['MesNum'] = df_ej['Fecha'].dt.month
+
+    # Mapear a nombre de mes (ya lo haces en df_filtrado, pero por si acaso):
+    dicc_meses = {
+        1:"Enero",2:"Febrero",3:"Marzo",4:"Abril",5:"Mayo",6:"Junio",
+        7:"Julio",8:"Agosto",9:"Septiembre",10:"Octubre",11:"Noviembre",12:"Diciembre"
+    }
+    df_ej['Mes'] = df_ej['MesNum'].map(dicc_meses)
+
+    # Agrupar y calcular promedio
+    grp = (df_ej
+           .groupby(['Año','MesNum','Mes'])['DiasEjec']
+           .mean()
+           .reset_index(name='PromedioDias'))
+
+    # Categórico para ordenar meses
+    meses_ordenados = list(dicc_meses.values())
+    grp['Mes'] = pd.Categorical(grp['Mes'], categories=meses_ordenados, ordered=True)
+
+    # Trazar
+    fig = px.line(
+        grp.sort_values(['Año','MesNum']),
+        x='Mes', y='PromedioDias', color='Año', markers=True,
+        title="Promedio de días de ejecución por Mes y Año",
+        labels={'PromedioDias':'Días promedio','Mes':'Mes'}
+    )
+    fig.update_layout(xaxis_title='Mes', yaxis_title='Días promedio de ejecución')
+    st.plotly_chart(fig, use_container_width=True)
 
 def df_filtrado (df):
     df.drop(columns=["Adj.","Resumen","Detalle","Anexo","Funcionario de Contacto_cod",

@@ -687,13 +687,12 @@ def df_filtrado (df):
     # Le decimos a pandas que ignore (sin lanzar KeyError) si alguna no existe
     df.drop(columns=cols_a_quitar, inplace=True, errors='ignore')
 
-    # Rellena NaN con ceros (sin argumentos extras)
-    df.fillna(0, inplace=True)
-
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
-        df['Fecha'] = df['Fecha'].replace(0, pd.NaT)
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
 
+    # Rellena NaN con ceros (sin argumentos extras)
+    df.fillna(0, inplace=True)
+    
     df["Ejecutada"] = df["Fecha de Término"].apply(lambda x: "No" if x == 0 else "Si")
     dicc_meses = {
         1:"Enero",

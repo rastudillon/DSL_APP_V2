@@ -675,7 +675,7 @@ def df_filtrado (df):
                 "Solicitud de Compra","Observación","Nº de Horas Hombre","Cantidad de Personas Involucradas",
                 "Material Utilizado","Rut Responsable_cod","Rut Responsable_dsc","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc",
                 "Ubicación Específica","Ubicación","Fecha y Hora Sistema"], inplace=True)
-    df.fillna(0,inplace=True, errors="ignore")
+    df.fillna(0,inplace=True)
 
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')

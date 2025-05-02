@@ -669,13 +669,20 @@ def grafico_tiempo_ejecucion(df):
     st.plotly_chart(fig, use_container_width=True)
 
 def df_filtrado (df):
-    df.drop(columns=["Adj.","Resumen","Detalle","Anexo","Funcionario de Contacto_cod",
-                 "Funcionario de Contacto_dsc","Fecha de Recepción","Funcionario Encargado_cod",
-                "Funcionario Encargado_dsc","Fecha de Asignación","Funcionario de Contacto_cod",
-                "Solicitud de Compra","Observación","Nº de Horas Hombre","Cantidad de Personas Involucradas",
-                "Material Utilizado","Rut Responsable_cod","Rut Responsable_dsc","Funcionario Ejecutor_cod","Funcionario Ejecutor_dsc",
-                "Ubicación Específica","Ubicación","Fecha y Hora Sistema"], inplace=True)
-    df.fillna(0,inplace=True)
+    cols_a_quitar = [
+        "Adj.", "Resumen", "Detalle", "Anexo", "Funcionario de Contacto_cod",
+        "Funcionario de Contacto_dsc", "Fecha de Recepción", "Funcionario Encargado_cod",
+        "Funcionario Encargado_dsc", "Fecha de Asignación", "Funcionario de Contacto_cod",
+        "Solicitud de Compra", "Observación", "Nº de Horas Hombre", "Cantidad de Personas Involucradas",
+        "Material Utilizado", "Rut Responsable_cod", "Rut Responsable_dsc", "Funcionario Ejecutor_cod",
+        "Funcionario Ejecutor_dsc", "Ubicación Específica", "Ubicación", "Fecha y Hora Sistema"
+    ]
+
+    # Le decimos a pandas que ignore (sin lanzar KeyError) si alguna no existe
+    df.drop(columns=cols_a_quitar, inplace=True, errors='ignore')
+
+    # Rellena NaN con ceros (sin argumentos extras)
+    df.fillna(0, inplace=True)
 
     if not pd.api.types.is_datetime64_any_dtype(df['Fecha']):
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')

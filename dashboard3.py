@@ -866,7 +866,7 @@ def grafico_barras(df):
                 },
                 xaxis_title='Año',
                 yaxis_title='Cantidad de OT',
-                legend_title_text='Estado',
+                legend_title_text='Ejecutada',
                 xaxis={'categoryorder': 'total descending'}
             )
             

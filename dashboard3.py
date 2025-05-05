@@ -359,23 +359,47 @@ def mostrar_info_mes_actual(df, año, mes):
     return st.write(metric_html, unsafe_allow_html=True)
 
 def grafico_barras_servicios(df, año):
-    df = df[(df['Año'] == año)]
+    # Filtrar por año
+    df = df[df['Año'] == año].copy()
+    # Mapear estados
     df['Ejecutada'] = df['Ejecutada'].map({'Si': 'Ejecutada', 'No': 'Pendiente'})
 
-    conteo_servicios = df.groupby(['Tipo de Servicio', 'Ejecutada']).size().reset_index(name='Cantidad')
+    # Conteo por servicio y estado
+    conteo_servicios = (
+        df
+        .groupby(['Tipo de Servicio', 'Ejecutada'])
+        .size()
+        .reset_index(name='Cantidad')
+    )
 
-    conteo_pendientes = conteo_servicios[conteo_servicios['Ejecutada'] == 'Pendiente'].sort_values(by='Cantidad', ascending=False)
+    # Ordenar servicios por pendientes primero
+    conteo_pendientes = conteo_servicios[conteo_servicios['Ejecutada']=='Pendiente'] \
+        .sort_values(by='Cantidad', ascending=False)
     servicios_ordenados = conteo_pendientes['Tipo de Servicio'].tolist()
+    # Añadir los demás servicios al final, si quedara alguno fuera
+    for s in df['Tipo de Servicio'].unique():
+        if s not in servicios_ordenados:
+            servicios_ordenados.append(s)
 
-    todos_los_servicios = df['Tipo de Servicio'].unique().tolist()
-    servicios_ordenados.extend([servicio for servicio in todos_los_servicios if servicio not in servicios_ordenados])
+    # Forzar orden de categorías
+    conteo_servicios['Tipo de Servicio'] = pd.Categorical(
+        conteo_servicios['Tipo de Servicio'],
+        categories=servicios_ordenados,
+        ordered=True
+    )
 
-    conteo_servicios['Tipo de Servicio'] = pd.Categorical(conteo_servicios['Tipo de Servicio'], categories=servicios_ordenados, ordered=True)
-
-    fig = px.bar(conteo_servicios, x='Tipo de Servicio', y='Cantidad', color='Ejecutada',
-                 title='Cantidad de OT Ejecutadas y Pendientes por Servicio',
-                 labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
-                 barmode='group')
+    # Gráfico de barras con colores personalizados
+    fig = px.bar(
+        conteo_servicios,
+        x='Tipo de Servicio', y='Cantidad', color='Ejecutada',
+        barmode='group',
+        title='Cantidad de OT Ejecutadas y Pendientes por Servicio',
+        labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
+        color_discrete_map={
+            'Pendiente': 'lightblue',   # celeste
+            'Ejecutada': 'blue'         # azul
+        }
+    )
 
     fig.update_layout(
         title={
@@ -389,10 +413,10 @@ def grafico_barras_servicios(df, año):
         xaxis_title='Servicio',
         yaxis_title='Cantidad de OT',
         legend_title_text='Estado',
-        xaxis={'categoryorder': 'array', 'categoryarray': servicios_ordenados}
+        xaxis={'categoryorder':'array', 'categoryarray':servicios_ordenados}
     )
 
-    return st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 def grafico_barras_mensuales(df, año):
     df = df[(df['Año'] == año)]
@@ -535,7 +559,7 @@ def calcular_dias_no_ejecutadas(df, año):
 
     return st.write(metric_html, unsafe_allow_html=True)
 
-def dashboard_anual(df):
+    def dashboard_anual(df):
     
     df_filtrado(df)
 
@@ -1068,7 +1092,7 @@ def principal():
             dashboard_personalizado(df_dsl)
 
         elif opciones == "Panel Principal":
-            dashboard_anual(df_dsl)
+                dashboard_anual(df_dsl)
 
         elif opciones == "Análisis Exploratorio":
             analisis_exp(df_dsl)

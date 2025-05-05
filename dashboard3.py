@@ -397,7 +397,7 @@ def grafico_barras_servicios(df, año):
         labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
         color_discrete_map={
             'Pendiente': 'lightblue',   # celeste
-            'Ejecutada': 'blue'         # azul
+            'Ejecutada': 'lightskyblue'         # azul
         }
     )
 

@@ -396,7 +396,7 @@ def grafico_barras_servicios(df, año):
         title='Cantidad de OT Ejecutadas y Pendientes por Servicio',
         labels={'Tipo de Servicio': 'Servicio', 'Cantidad': 'Cantidad de OT'},
         color_discrete_map={
-            'Pendiente': '#aec7e8',   # celeste
+            'Pendiente': 'lightblue',   # celeste
             'Ejecutada': '#1f77b4'         # azul
         }
     )
